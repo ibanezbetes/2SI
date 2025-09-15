@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon API - Modo Oscuro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #181c24;
+      --card: #23283a;
+      --primary: #ffcb05;
+      --accent: #3b4cca;
+      --text: #f5f5f5;
+      --input: #23283a;
+      --input-text: #f5f5f5;
+      --shadow: 0 4px 24px 0 rgba(0,0,0,0.4);
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Montserrat', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    h1 {
+      color: var(--primary);
+      margin-top: 2rem;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 8px #0008;
+    }
+    .search {
+      margin: 2rem 0 1rem 0;
+      display: flex;
+      gap: 1rem;
+    }
+    .search input {
+      background: var(--input);
+      color: var(--input-text);
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      box-shadow: var(--shadow);
+      outline: none;
+      transition: box-shadow 0.2s;
+    }
+    .search input:focus {
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+    .search button {
+      background: var(--accent);
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: background 0.2s;
+    }
+    .search button:hover {
+      background: var(--primary);
+      color: var(--accent);
+    }
+    .pokemons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 2rem;
+    }
+    .pokemon-card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem 1rem 1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+    .pokemon-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 8px 32px 0 #000a;
+    }
+    .pokemon-img {
+      width: 96px;
+      height: 96px;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 2px 8px #0008);
+    }
+    .pokemon-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary);
+      letter-spacing: 1px;
+      text-transform: capitalize;
+      text-shadow: 0 1px 4px #0006;
+    }
+    @media (max-width: 600px) {
+      .pokemons {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Pokémon API <span style="font-size:1.2rem; color:var(--accent);">Modo Oscuro</span></h1>
+  <form class="search" id="searchForm">
+    <input type="text" id="searchInput" placeholder="Buscar por nombre..." autocomplete="off" />
+    <select id="typeSelect">
+      <option value="">Todos los tipos</option>
+    </select>
+    <button type="submit">Buscar</button>
+  </form>
+  <div class="pokemons" id="pokemons"></div>
+  <script>
+    const API_URL = '/pokemons';
+    const pokemonsDiv = document.getElementById('pokemons');
+    const form = document.getElementById('searchForm');
+    const input = document.getElementById('searchInput');
+    const typeSelect = document.getElementById('typeSelect');
+
+    async function fetchTypes() {
+      try {
+        const res = await fetch('https://pokeapi.co/api/v2/type');
+        const data = await res.json();
+        typeSelect.innerHTML = '<option value="">Todos los tipos</option>' +
+          data.results
+            .filter(t => t.name !== 'unknown' && t.name !== 'shadow')
+            .map(t => `<option value="${t.name}">${capitalize(t.name)}</option>`)
+            .join('');
+      } catch (e) {
+        typeSelect.innerHTML = '<option value="">Todos los tipos</option>';
+      }
+    }
+
+    async function fetchPokemons(name = '', type = '') {
+      let url = API_URL;
+      const params = [];
+      if (name) params.push(`name=${encodeURIComponent(name)}`);
+      if (type) params.push(`type=${encodeURIComponent(type)}`);
+      if (params.length) url += '?' + params.join('&');
+      pokemonsDiv.innerHTML = '<span style="grid-column:1/-1;text-align:center;">Cargando...</span>';
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        renderPokemons(data);
+      } catch (e) {
+        pokemonsDiv.innerHTML = '<span style="color:#f55;">Error al cargar los pokémon</span>';
+      }
+    }
+
+    function renderPokemons(pokemons) {
+      if (!pokemons.length) {
+        pokemonsDiv.innerHTML = '<span style="grid-column:1/-1;text-align:center;">No se encontraron pokémon</span>';
+        return;
+      }
+      pokemonsDiv.innerHTML = pokemons.map(p => `
+        <div class="pokemon-card">
+          <img class="pokemon-img" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${getIdFromUrl(p.url)}.png" alt="${p.name}" />
+          <div class="pokemon-name">${capitalize(p.name)}</div>
+        </div>
+      `).join('');
+    }
+
+    function getIdFromUrl(url) {
+      const match = url.match(/\/pokemon\/(\d+)\//);
+      return match ? match[1] : '';
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      fetchPokemons(input.value.trim(), typeSelect.value);
+    });
+
+    typeSelect.addEventListener('change', () => {
+      fetchPokemons(input.value.trim(), typeSelect.value);
+    });
+
+    // Carga inicial
+    fetchTypes();
+    fetchPokemons();
+  </script>
+</body>
+</html>
