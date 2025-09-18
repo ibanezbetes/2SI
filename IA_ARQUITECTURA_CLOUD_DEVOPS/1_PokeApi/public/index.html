@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokeAPI Express App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="pokedex-frame">
+    <div class="pokedex-header">
+      <div class="pokedex-lights">
+        <span class="light red"></span>
+        <span class="light yellow"></span>
+        <span class="light green"></span>
+      </div>
+      <h1>Pokédex</h1>
+    </div>
+    <div class="pokedex-screen" id="pokedexScreen">
+      <div id="pikachuCard" class="pokemon-card pokedex-main">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif" alt="Pikachu">
+        <strong>Pikachu</strong>
+      </div>
+      <div id="pokemonList" style="display:none"></div>
+    </div>
+    <form id="searchForm" class="pokedex-search">
+      <input type="text" id="nameInput" placeholder="Buscar Pokémon por nombre o ID...">
+      <button type="submit">Buscar</button>
+    </form>
+    <div class="pagination" id="pagination" style="display:none"></div>
+  </div>
+  <script src="utils.js"></script>
+  <script src="app.js"></script>
+  <div id="pokemonModal" class="modal" style="display:none">
+    <div class="modal-content" id="modalContent"></div>
+    <span class="close-modal" id="closeModal">&times;</span>
+  </div>
+</body>
+</html>
