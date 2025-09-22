@@ -36,35 +36,16 @@
   </dia:window>
   <dia:list role="recent-files">
     <dia:attribute name="listvalue">
-<<<<<<< HEAD
-      <dia:string>#C:\Users\daniz\Downloads\diagrama.fig
-C:\Users\daniz\Documents\GitHub\1SI\BASES_DATOS\T3_ORACLE\Ejercicio 17 Cadena de hoteles.dia
-=======
-      <dia:string>#C:\Users\daniz\Documents\GitHub\1SI\BASES_DATOS\T3_ORACLE\Ejercicio 17 Cadena de hoteles.dia
->>>>>>> f9219b8e2584afc79d663d4eefb1e4ec1c9588b9
-C:\Users\daniz\Documents\GitHub\1SI\ENTORNOS_DESARROLLO\LAVADORA\Lavadora.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\T2_SQL\Ejercicio7.dia
-C:\Users\daniz\Documents\GitHub\1SI-ENTORNOS_DESARROLLO\DiagramaIrrigadores.dia
-C:\Users\daniz\Downloads\DiagramaIrrigadores.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\T2_SQL\Ejercicio5.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\T2_SQL\Ejercicio4.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\T1_ACCESS\EJERCICIOS TEMA 1\Ejercicio4.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\DiaPortable\Data\Ejercicio3.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\T1_ACCESS\EJERCICIOS TEMA 1\Ejercicio3.dia
-C:\Users\daniz\Documents\GitHub\1SI-BASES_DATOS\T1_ACCESS\EJERCICIOS TEMA 1\Ejercicio3Corregido
-C:\Users\daniz\Documents\GitHub\1SI-ENTORNOS_DESARROLLO\T1\Tema1Ejercicio3.dia
-C:\Users\daniz\Documents\DiaPortable\ENTORNOS DESARROLLO\ARRAY DE 6 ALEATORIA.dia
-C:\Users\daniz\Documents\DiaPortable\ARRAY DE 6 ALEATORIA.dia
-C:\Users\daniz\Downloads\Sandwitch ejemplo inicial.dia#</dia:string>
+      <dia:string>#C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\Evaluacion_Inicial.dia
+C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INICIAL.dia#</dia:string>
     </dia:attribute>
   </dia:list>
   <dia:list role="sheets">
     <dia:attribute name="listvalue">
-      <dia:string>#ER
-Diagrama de flujo#</dia:string>
+      <dia:string>#Diagrama de flujo#</dia:string>
     </dia:attribute>
   </dia:list>
-  <dia:list role="arrow-menu">
+  <dia:list role="diagram-tree-hidden-types">
     <dia:attribute name="listvalue">
       <dia:string>##</dia:string>
     </dia:attribute>
@@ -75,11 +56,6 @@ Diagrama de flujo#</dia:string>
     </dia:attribute>
   </dia:list>
   <dia:list role="font-menu">
-    <dia:attribute name="listvalue">
-      <dia:string>##</dia:string>
-    </dia:attribute>
-  </dia:list>
-  <dia:list role="diagram-tree-hidden-types">
     <dia:attribute name="listvalue">
       <dia:string>##</dia:string>
     </dia:attribute>
@@ -109,22 +85,17 @@ Diagrama de flujo#</dia:string>
       <dia:int val="5"/>
     </dia:attribute>
   </dia:integer>
-  <dia:integer role="export-filter">
-    <dia:attribute name="intvalue">
-      <dia:int val="5"/>
-    </dia:attribute>
-  </dia:integer>
   <dia:integer role="recent_documents_list_size">
     <dia:attribute name="intvalue">
       <dia:int val="5"/>
     </dia:attribute>
   </dia:integer>
-  <dia:integer role="diagram_tree_obj_sort">
+  <dia:integer role="diagram_tree_dia_sort">
     <dia:attribute name="intvalue">
       <dia:int val="2"/>
     </dia:attribute>
   </dia:integer>
-  <dia:integer role="diagram_tree_dia_sort">
+  <dia:integer role="diagram_tree_obj_sort">
     <dia:attribute name="intvalue">
       <dia:int val="2"/>
     </dia:attribute>
@@ -146,7 +117,7 @@ Diagrama de flujo#</dia:string>
   </dia:real>
   <dia:real role="linewidth">
     <dia:attribute name="realvalue">
-      <dia:real val="0"/>
+      <dia:real val="0.10000000000000001"/>
     </dia:attribute>
   </dia:real>
   <dia:real role="end-arrow-length">
@@ -184,6 +155,11 @@ Diagrama de flujo#</dia:string>
       <dia:real val="0.5"/>
     </dia:attribute>
   </dia:real>
+  <dia:boolean role="view_antialised">
+    <dia:attribute name="booleanvalue">
+      <dia:boolean val="false"/>
+    </dia:attribute>
+  </dia:boolean>
   <dia:boolean role="render_bounding_boxes">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="false"/>
@@ -204,12 +180,12 @@ Diagrama de flujo#</dia:string>
       <dia:boolean val="false"/>
     </dia:attribute>
   </dia:boolean>
-  <dia:boolean role="reverse_rubberbanding_intersects">
+  <dia:boolean role="snap_object">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="true"/>
     </dia:attribute>
   </dia:boolean>
-  <dia:boolean role="snap_object">
+  <dia:boolean role="reverse_rubberbanding_intersects">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="true"/>
     </dia:attribute>
@@ -254,11 +230,6 @@ Diagrama de flujo#</dia:string>
       <dia:boolean val="true"/>
     </dia:attribute>
   </dia:boolean>
-  <dia:boolean role="view_antialised">
-    <dia:attribute name="booleanvalue">
-      <dia:boolean val="false"/>
-    </dia:attribute>
-  </dia:boolean>
   <dia:boolean role="pagebreak_solid">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="true"/>
@@ -274,24 +245,24 @@ Diagrama de flujo#</dia:string>
       <dia:string>#any#</dia:string>
     </dia:attribute>
   </dia:string>
-  <dia:string role="favored_ps_export">
+  <dia:string role="favored_wmf_export">
     <dia:attribute name="stringvalue">
       <dia:string>#any#</dia:string>
     </dia:attribute>
   </dia:string>
-  <dia:string role="favored_wmf_export">
+  <dia:string role="favored_ps_export">
     <dia:attribute name="stringvalue">
       <dia:string>#any#</dia:string>
     </dia:attribute>
   </dia:string>
   <dia:string role="last-sheet-selected">
     <dia:attribute name="stringvalue">
-      <dia:string>#ER#</dia:string>
+      <dia:string>#Diagrama de flujo#</dia:string>
     </dia:attribute>
   </dia:string>
   <dia:string role="end-arrow-type">
     <dia:attribute name="stringvalue">
-      <dia:string>#None#</dia:string>
+      <dia:string>#Filled Concave#</dia:string>
     </dia:attribute>
   </dia:string>
   <dia:string role="start-arrow-type">

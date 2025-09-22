@@ -35,7 +35,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="2.01066,1.20033"/>
+            <dia:point val="2.01066,1.24533"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -80,7 +80,7 @@
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="1,4.25566"/>
+            <dia:point val="1,4.30066"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
