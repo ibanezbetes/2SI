@@ -36,7 +36,8 @@
   </dia:window>
   <dia:list role="recent-files">
     <dia:attribute name="listvalue">
-      <dia:string>#C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\Evaluacion_Inicial.dia
+      <dia:string>#C:\Users\daniz\Downloads\ER-EV-INICIAL.dia
+C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\Evaluacion_Inicial.dia
 C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INICIAL.dia#</dia:string>
     </dia:attribute>
   </dia:list>
@@ -90,12 +91,12 @@ C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INI
       <dia:int val="5"/>
     </dia:attribute>
   </dia:integer>
-  <dia:integer role="diagram_tree_dia_sort">
+  <dia:integer role="diagram_tree_obj_sort">
     <dia:attribute name="intvalue">
       <dia:int val="2"/>
     </dia:attribute>
   </dia:integer>
-  <dia:integer role="diagram_tree_obj_sort">
+  <dia:integer role="diagram_tree_dia_sort">
     <dia:attribute name="intvalue">
       <dia:int val="2"/>
     </dia:attribute>
@@ -155,11 +156,6 @@ C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INI
       <dia:real val="0.5"/>
     </dia:attribute>
   </dia:real>
-  <dia:boolean role="view_antialised">
-    <dia:attribute name="booleanvalue">
-      <dia:boolean val="false"/>
-    </dia:attribute>
-  </dia:boolean>
   <dia:boolean role="render_bounding_boxes">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="false"/>
@@ -180,12 +176,12 @@ C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INI
       <dia:boolean val="false"/>
     </dia:attribute>
   </dia:boolean>
-  <dia:boolean role="snap_object">
+  <dia:boolean role="reverse_rubberbanding_intersects">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="true"/>
     </dia:attribute>
   </dia:boolean>
-  <dia:boolean role="reverse_rubberbanding_intersects">
+  <dia:boolean role="snap_object">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="true"/>
     </dia:attribute>
@@ -230,6 +226,11 @@ C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INI
       <dia:boolean val="true"/>
     </dia:attribute>
   </dia:boolean>
+  <dia:boolean role="view_antialised">
+    <dia:attribute name="booleanvalue">
+      <dia:boolean val="false"/>
+    </dia:attribute>
+  </dia:boolean>
   <dia:boolean role="pagebreak_solid">
     <dia:attribute name="booleanvalue">
       <dia:boolean val="true"/>
@@ -245,12 +246,12 @@ C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INI
       <dia:string>#any#</dia:string>
     </dia:attribute>
   </dia:string>
-  <dia:string role="favored_wmf_export">
+  <dia:string role="favored_ps_export">
     <dia:attribute name="stringvalue">
       <dia:string>#any#</dia:string>
     </dia:attribute>
   </dia:string>
-  <dia:string role="favored_ps_export">
+  <dia:string role="favored_wmf_export">
     <dia:attribute name="stringvalue">
       <dia:string>#any#</dia:string>
     </dia:attribute>

@@ -228,6 +228,7 @@
 ; (gtk_accel_path "<Actions>/integrated-ui-actions/Layers" "")
 ; (gtk_accel_path "<Actions>/display-actions/ObjectsGroup" "<Control>g")
 ; (gtk_accel_path "<Actions>/integrated-ui-actions/ObjectsAlignMiddle" "<Shift><Alt>m")
+; (gtk_accel_path "<Actions>/recent-files/FileRecent_2" "<Control>3")
 ; (gtk_accel_path "<Actions>/display-actions/FileNew" "<Control>n")
 ; (gtk_accel_path "<Actions>/display-actions/ViewAntialiased" "")
 ; (gtk_accel_path "<Actions>/integrated-ui-actions/SelectTransitive" "<Control>t")
