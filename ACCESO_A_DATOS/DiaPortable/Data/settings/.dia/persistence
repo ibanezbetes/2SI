@@ -36,8 +36,12 @@
   </dia:window>
   <dia:list role="recent-files">
     <dia:attribute name="listvalue">
+<<<<<<< HEAD
       <dia:string>#C:\Users\daniz\Desktop\DiagramaEvInicial.dia
 C:\Users\daniz\Downloads\Modelo_Proveedores_V1.dia
+=======
+      <dia:string>#C:\Users\daniz\Downloads\ER-EV-INICIAL.dia
+>>>>>>> ede9cb5866821dd68f3e16f389a9dd66952d5ebe
 C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\Evaluacion_Inicial.dia
 C:\Users\daniz\Documents\GitHub\2SI\ACCESO_A_DATOS\EVALUACIÓN_INICIAL\ER-EV-INICIAL.dia#</dia:string>
     </dia:attribute>
