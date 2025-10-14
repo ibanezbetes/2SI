@@ -1,8 +1,7 @@
 <?php session_start();
-    //var_dump($_SESSION);
 
     if( isset($_SESSION['login']) && $_SESSION['login']!=''){ //logeado
-        $btnlog=$_SESSION['login']
+        $btnlog='<br>'.$_SESSION['login']
                 .'<br><a href="logout.php"><img src="iconos/logout.png" 
                     style="height:2em;"></a>';
     }else{ //no logeado
@@ -25,11 +24,8 @@
     <body>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-md-2 col-sm-9">
-                    logotipo
-                </div>
                 <div class="col-md-8 d-none d-md-block">
-                    Aplicación de Javier Lasheras
+                    Aplicación de Daniel Ibáñez
                 </div>
                 <div class="col-md-2 col-sm-3">
                     <?php echo $btnlog; ?>

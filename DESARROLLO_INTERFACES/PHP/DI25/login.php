@@ -7,10 +7,11 @@
     if($usuario=='' || $pass==''){
         $msj='Debes completar los campos.';
     }else{
-        if($usuario=='javier' && $pass='123'){
+        if($usuario=='javier' && $pass=='123'){
             //saltar a esta página (no puede haber pintado nada antes)
-            $_SESSION['login']= 
+            $_SESSION['login']=$usuario;
             header('Location: index.php'); 
+            exit();
         }else{
             $msj='Datos incorrectos.';
 
