@@ -1,0 +1,16 @@
+<clase id="2SI">
+	<alumno>
+		<num_matricula>28516</num_matricula>
+		<nombre>Daniel</nombre>
+		<apellido1>Ibáñez</apellido1>
+		<apellido2>Betés</apellido2>
+		<fecha_nac>24/12/1995</fecha_nac>
+	</alumno>
+	<alumno>
+		<num_matricula>28518</num_matricula>
+		<nombre>Daniel</nombre>
+		<apellido1>Lazar</apellido1>
+		<apellido2>Badorrey</apellido2>
+		<fecha_nac>14/10/2006</fecha_nac>
+	</alumno>
+</clase>
