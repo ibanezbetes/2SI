@@ -180,6 +180,19 @@
                 echo json_encode(['error' => 'Error en la consulta: ' . $e->getMessage()]);
             }
         }
+
+        public function getVistaUsuarioForm($datos=array()){
+            $usuarioData = array();
+            if(isset($datos['idUsuario']) && $datos['idUsuario']!=''){
+                $id = intval($datos['idUsuario']);
+                $sql = "SELECT idUsuario, nombre, apellido1, apellido2, mail, movil, login, sexo, activo FROM usuarios WHERE idUsuario = $id";
+                $res = $this->dao->consultar($sql);
+                if(count($res)>0) $usuarioData = $res[0];
+            }
+            // Pasar datos a la vista como variable $datos para que la vista pueda usarla
+            $datosVista = array('usuario' => $usuarioData);
+            Vista::render('vistas/Usuarios/VUsuarioForm.php', $datosVista);
+        }
         
         public function crearUsuario($datos=array()) {
             extract($datos);

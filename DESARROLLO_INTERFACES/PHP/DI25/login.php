@@ -32,7 +32,7 @@
         </style>
     </head>
     <body class="d-flex align-items-center bg-body-tertiary">
-        <form class="formulario" id="formularioLogin" method="post" action="login.php">
+    <form class="formulario" id="formularioLogin" method="post" action="login.php" novalidate>
             <h1 class="h3 mb-3 fw-normal">Identificate...</h1>
 
             <div class="form-floating">
@@ -50,6 +50,22 @@
             <button class="btn btn-primary w-100 py-2" type="submit">Acceder</button>
 
         </form>
+
+        <script>
+            document.getElementById('formularioLogin').addEventListener('submit', function(e){
+                const usuario = document.getElementById('usuario').value.trim();
+                const pass = document.getElementById('pass').value.trim();
+                const msjEl = document.getElementById('msj');
+                msjEl.textContent = '';
+                if(usuario === '' || pass === ''){
+                    e.preventDefault();
+                    msjEl.textContent = 'Debes completar los campos antes de enviar.';
+                    msjEl.classList.add('fw-bold');
+                    return false;
+                }
+                return true;
+            });
+        </script>
 
 
     </body>

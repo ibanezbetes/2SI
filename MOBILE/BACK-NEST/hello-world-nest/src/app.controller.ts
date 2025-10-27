@@ -10,6 +10,11 @@ export class AppController {
     return `productId: ${productId}`;
   }
 
+  @Get('peliculasa')
+  getPeliculas() {
+    return this.appService.getPeliculas();
+  }
+
   @Post()
   create(@Body() payload: any) {
     return {

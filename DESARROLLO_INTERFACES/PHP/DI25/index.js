@@ -50,7 +50,7 @@ function buscar(controlador, metodo, formulario, destino){
             document.getElementById(destino).innerHTML = vista;
         })
         .catch(err =>{
-            document.getElementById(destino).innerHTML = 'Se ha producido un error, vuelva intentarlo';
+            document.getElementById(destino).innerHTML = 'Se ha producido un error, vuelva a intentarlo';
         })
 
 } //FIN buscar
@@ -267,6 +267,160 @@ function eliminarUsuario(idUsuario, nombreUsuario) {
         .catch(error => {
             console.error("Error:", error);
             alert("Error al eliminar el usuario");
+        });
+    }
+}
+
+// --------------------------------------------------
+// Funciones para la gestión de Productos (similares a Usuarios)
+// --------------------------------------------------
+function buscarProductos() {
+    buscar('Productos', 'getVistaListadoProductos', 'formularioBuscarProducto','capaResultadosProductos');
+}
+
+function verTodosProductos() {
+    document.getElementById("formularioBuscarProducto").reset();
+    buscar('Productos', 'getVistaListadoProductos', 'formularioBuscarProducto','capaResultadosProductos');
+}
+
+function mostrarFormularioCrearProducto() {
+    const formulario = `
+        <form id="formProducto">
+            <div class="mb-3">
+                <label for="productoNombre" class="form-label">Producto</label>
+                <input type="text" class="form-control" id="productoNombre" name="producto" required>
+            </div>
+            <div class="mb-3">
+                <label for="productoDescripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="productoDescripcion" name="descripcion"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="productoStock" class="form-label">Stock</label>
+                <input type="number" class="form-control" id="productoStock" name="stock" value="0">
+            </div>
+            <div class="mb-3">
+                <label for="productoPrecio" class="form-label">Precio Venta</label>
+                <input type="number" step="0.01" class="form-control" id="productoPrecio" name="precioVenta" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary" onclick="guardarProducto();">💾 Guardar Producto</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarFormularioProducto();">❌ Cancelar</button>
+            </div>
+        </form>
+    `;
+    document.getElementById("formularioProducto").innerHTML = formulario;
+    document.getElementById("formularioProducto").style.display = "block";
+}
+
+function editarProducto(idProducto) {
+    // Hacer petición para obtener datos del usuario
+    fetch("CFrontal.php?controlador=Productos&metodo=obtenerProducto&idProducto=" + idProducto)
+        .then(response => response.json())
+        .then(producto => {
+            mostrarFormularioEditarProducto(producto);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Error al cargar los datos del producto");
+        });
+}
+
+function mostrarFormularioEditarProducto(producto) {
+    const formulario = `
+        <form id="formProducto">
+            <input type="hidden" id="idProducto" value="${producto.idProducto}">
+            <div class="mb-3">
+                <label for="productoNombre" class="form-label">Producto</label>
+                <input type="text" class="form-control" id="productoNombre" value="${producto.producto}" required>
+            </div>
+            <div class="mb-3">
+                <label for="productoDescripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="productoDescripcion">${producto.descripcion || ''}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="productoStock" class="form-label">Stock</label>
+                <input type="number" class="form-control" id="productoStock" value="${producto.stock || 0}">
+            </div>
+            <div class="mb-3">
+                <label for="productoPrecio" class="form-label">Precio Venta</label>
+                <input type="number" step="0.01" class="form-control" id="productoPrecio" value="${producto.precioVenta}">
+            </div>
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-primary" onclick="actualizarProducto();">✏️ Actualizar Producto</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarFormularioProducto();">❌ Cancelar</button>
+            </div>
+        </form>
+    `;
+    document.getElementById("formularioProducto").innerHTML = formulario;
+    document.getElementById("formularioProducto").style.display = "block";
+}
+
+function guardarProducto() {
+    let parametros = "controlador=Productos&metodo=crearProducto";
+    parametros += "&" + new URLSearchParams(new FormData(document.getElementById("formProducto"))).toString();
+    fetch("CFrontal.php?" + parametros)
+    .then(response => response.text())
+    .then(data => {
+        if(data.includes('exitosamente')){
+            alert('Producto creado exitosamente');
+            cancelarFormularioProducto();
+            verTodosProductos();
+        } else {
+            alert('Error al crear el producto');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al crear el producto');
+    });
+}
+
+function actualizarProducto() {
+    const datos = {
+        controlador: 'Productos',
+        metodo: 'actualizarProducto',
+        idProducto: document.getElementById('idProducto').value,
+        producto: document.getElementById('productoNombre').value,
+        descripcion: document.getElementById('productoDescripcion').value,
+        stock: document.getElementById('productoStock').value,
+        precioVenta: document.getElementById('productoPrecio').value
+    };
+    const params = new URLSearchParams(datos);
+    fetch('CFrontal.php', {method:'POST', body: params})
+    .then(response => response.text())
+    .then(data => {
+        alert('Producto actualizado exitosamente');
+        cancelarFormularioProducto();
+        verTodosProductos();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar el producto');
+    });
+}
+
+function cancelarFormularioProducto(){
+    document.getElementById('formularioProducto').style.display = 'none';
+    document.getElementById('formularioProducto').innerHTML = '';
+}
+
+function eliminarProducto(idProducto, nombreProducto){
+    if(confirm("¿Está seguro de que desea eliminar el producto '" + nombreProducto + "' ?")){
+        const datos = {controlador:'Productos', metodo:'eliminarProducto', idProducto: idProducto};
+        const params = new URLSearchParams(datos);
+        fetch('CFrontal.php',{method:'POST', body: params})
+        .then(response => response.text())
+        .then(data => {
+            if(data.includes('exitosamente')){
+                alert('Producto eliminado correctamente');
+                verTodosProductos();
+            } else {
+                alert('Error al eliminar el producto');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar el producto');
         });
     }
 }

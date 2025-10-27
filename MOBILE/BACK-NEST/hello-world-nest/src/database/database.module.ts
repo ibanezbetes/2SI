@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { Client } from 'pg';
+import { ConfigModule, ConfigType } from '@nestjs/config';
+import config from '../config/config';
 
 const client = new Client({
     user: 'postgres',
@@ -17,5 +19,27 @@ const client = new Client({
     console.log(res.rows);
   });
 
-@Module({})
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [config],
+      envFilePath:
+        process.env.NODE_ENV === 'prod'
+          ? '.prod.env'
+          : process.env.NODE_ENV === 'stg'
+          ? '.stg.env'
+          : '.env',
+    })
+  ],
+  providers:
+  [
+    {
+    provide: 'PGA',
+    useValue: client,
+    }
+  ],
+  exports: ['PGA'],
+})  
+
 export class DatabaseModule {}
