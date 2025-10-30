@@ -6,9 +6,10 @@ import { CategoriesController } from './controllers/categories/categories.contro
 import { ProductsService } from './services/products/products.service';
 import { CategoriesService } from './services/categories/categories.service';
 import { DatabaseModule } from './database/database.module';
+import { PeliculasModule } from './peliculas/peliculas.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, PeliculasModule],
   controllers: [AppController, ProductsController, CategoriesController],
   providers: [AppService, ProductsService, CategoriesService],
 })
