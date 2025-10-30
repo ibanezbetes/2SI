@@ -24,14 +24,43 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Login di25</title>
         <link rel="stylesheet" href="librerias/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/estilos.css">
         <script src="librerias/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
         <style>
-            html, body { height: 100%; }
-            .formulario { max-width: 330px; padding: 1rem; margin: auto !important; width: 100% !important;}
-            .msj { color: red; }
+            html, body { 
+                height: 100%; 
+                background-color: var(--bs-body-bg);
+                color: var(--bs-body-color);
+            }
+            .formulario { 
+                max-width: 330px; 
+                padding: 2rem; 
+                margin: auto !important; 
+                width: 100% !important;
+                background-color: var(--surface-color);
+                border-radius: var(--bs-border-radius);
+                border: 1px solid var(--bs-border-color);
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
+            }
+            .msj { 
+                color: var(--bs-danger) !important;
+                font-weight: 500;
+            }
+            h1.h3 {
+                color: var(--bs-light) !important;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            .form-floating > label {
+                color: #adb5bd;
+            }
+            .form-floating > .form-control:focus ~ label,
+            .form-floating > .form-control:not(:placeholder-shown) ~ label {
+                color: var(--bs-primary);
+            }
         </style>
     </head>
-    <body class="d-flex align-items-center bg-body-tertiary">
+    <body class="d-flex align-items-center">
     <form class="formulario" id="formularioLogin" method="post" action="login.php" novalidate>
             <h1 class="h3 mb-3 fw-normal">Identificate...</h1>
 

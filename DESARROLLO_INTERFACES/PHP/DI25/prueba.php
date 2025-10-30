@@ -5,6 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prueba PHP</title>
+    <link rel="stylesheet" href="librerias/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        body {
+            padding: 2rem;
+        }
+        pre {
+            background-color: var(--surface-color);
+            color: var(--bs-body-color);
+            padding: 1rem;
+            border-radius: var(--bs-border-radius);
+            border: 1px solid var(--bs-border-color);
+        }
+    </style>
 </head>
 
 <body>
