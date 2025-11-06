@@ -203,6 +203,14 @@
                 return;
             }
             
+            // Verificar si el login ya existe
+            $sqlCheck = "SELECT COUNT(*) as total FROM usuarios WHERE login = '$login' AND activo='S'";
+            $resultado = $this->dao->consultar($sqlCheck);
+            if($resultado[0]['total'] > 0) {
+                echo '<div class="alert alert-danger">El login ingresado ya está en uso. Por favor, elija otro.</div>';
+                return;
+            }
+            
             try {
                 // Encriptar contraseña (MD5 como en los datos existentes)
                 $passEncriptada = md5($pass);
@@ -233,6 +241,14 @@
                 return;
             }
             
+            // Verificar si el login ya existe (excluyendo el usuario actual)
+            $sqlCheck = "SELECT COUNT(*) as total FROM usuarios WHERE login = '$login' AND idUsuario != $idUsuario AND activo='S'";
+            $resultado = $this->dao->consultar($sqlCheck);
+            if($resultado[0]['total'] > 0) {
+                echo '<div class="alert alert-danger">El login ingresado ya está en uso. Por favor, elija otro.</div>';
+                return;
+            }
+            
             try {
                 $sql = "UPDATE usuarios SET 
                         nombre = '$nombre',
@@ -254,6 +270,40 @@
                 
             } catch (Exception $e) {
                 echo '<div class="alert alert-danger">Error en la consulta: ' . $e->getMessage() . '</div>';
+            }
+        }
+        
+        public function verificarLogin($datos=array()) {
+            extract($datos);
+            $login = isset($login) ? $login : '';
+            $idUsuario = isset($idUsuario) ? $idUsuario : null;
+            
+            if($login == '') {
+                header('Content-Type: application/json');
+                echo json_encode(['disponible' => false, 'mensaje' => 'Login vacío']);
+                return;
+            }
+            
+            try {
+                // Si es edición, excluir el usuario actual de la búsqueda
+                if($idUsuario) {
+                    $sql = "SELECT COUNT(*) as total FROM usuarios WHERE login = '$login' AND idUsuario != $idUsuario AND activo='S'";
+                } else {
+                    $sql = "SELECT COUNT(*) as total FROM usuarios WHERE login = '$login' AND activo='S'";
+                }
+                
+                $resultado = $this->dao->consultar($sql);
+                $disponible = ($resultado[0]['total'] == 0);
+                
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'disponible' => $disponible,
+                    'mensaje' => $disponible ? 'Login disponible' : 'Login ya en uso'
+                ]);
+                
+            } catch (Exception $e) {
+                header('Content-Type: application/json');
+                echo json_encode(['disponible' => false, 'mensaje' => 'Error al verificar login']);
             }
         }
         
