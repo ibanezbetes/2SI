@@ -1,5 +1,7 @@
-<?php session_start();
-    //unset($_SESSION)['login']
-    $_SESSION=array();
-
- ?>
+<?php 
+session_start();
+$_SESSION = array();
+session_destroy();
+header('Location: login.php');
+exit();
+?>

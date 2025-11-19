@@ -1,20 +1,18 @@
-<?php session_start();
+<?php 
+session_start();
 
-    if( isset($_SESSION['login']) && $_SESSION['login']!=''){ //logeado
-        $btnlog = '<div class="d-flex align-items-center justify-content-end">
-                       <span class="me-2">' . $_SESSION['login'] . '</span>
-                       <a href="logout.php">
-                           <img src="iconos/logout.png" style="height:2em;" alt="Logout">
-                       </a>
-                   </div>';
-    }else{ //no logeado
-        $btnlog = '<a href="login.php">
-                       <img src="iconos/login.png" style="height:2em;" alt="Login">
-                   </a>';
-    }// FIN no logeado
-
-
-
+if(isset($_SESSION['login']) && $_SESSION['login']!=''){
+    $btnlog = '<div class="d-flex align-items-center justify-content-end">
+                   <span class="me-2">' . $_SESSION['login'] . '</span>
+                   <a href="logout.php">
+                       <img src="iconos/logout.png" style="height:2em;" alt="Logout">
+                   </a>
+               </div>';
+}else{
+    $btnlog = '<a href="login.php">
+                   <img src="iconos/login.png" style="height:2em;" alt="Login">
+               </a>';
+}
 ?>
 <!DOCTYPE html>
     <html lang="es_ES">
@@ -79,7 +77,9 @@
     <div class="container-fluid" id="capaContenido">
         Contenido
     </div>
-        <script src="index.js" async></script>
+        <script src="js/utils.js"></script>
+        <script src="js/usuarios.js"></script>
+        <script src="js/productos.js"></script>
     </body>
 
 
