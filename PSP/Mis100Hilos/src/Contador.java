@@ -20,7 +20,6 @@ public class Contador {
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
 
