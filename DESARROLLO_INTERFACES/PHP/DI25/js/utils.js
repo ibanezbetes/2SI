@@ -1,13 +1,16 @@
+// Validar formato de email (usuario@dominio.com)
 function validarEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
 
+// Validar móvil español (9 dígitos, empieza por 6, 7, 8 o 9)
 function validarMovil(movil) {
   const regex = /^[6-9]\d{8}$/;
   return regex.test(movil.replace(/\s/g, ''));
 }
 
+// Mostrar mensaje de error en un contenedor
 function mostrarError(contenedorId, mensaje) {
   const contenedor = document.getElementById(contenedorId);
   if (contenedor) {
@@ -20,6 +23,7 @@ function mostrarError(contenedorId, mensaje) {
   }
 }
 
+// Mostrar mensaje de éxito en un contenedor
 function mostrarExito(contenedorId, mensaje) {
   const contenedor = document.getElementById(contenedorId);
   if (contenedor) {
@@ -32,6 +36,7 @@ function mostrarExito(contenedorId, mensaje) {
   }
 }
 
+// Limpiar mensajes de un contenedor
 function limpiarMensajes(contenedorId) {
   const contenedor = document.getElementById(contenedorId);
   if (contenedor) {
@@ -39,15 +44,19 @@ function limpiarMensajes(contenedorId) {
   }
 }
 
+// Cargar una vista desde el servidor (AJAX)
+// Ejemplo: obtenerVista('Usuarios', 'getVistaUsuariosPrincipal', 'capaContenido')
 function obtenerVista(controlador, metodo, destino, parametrosExtra = "") {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
   if (parametrosExtra) {
     parametros += "&" + parametrosExtra;
   }
 
+  // Hacer petición al servidor sin recargar la página
   fetch("CFrontal.php?" + parametros)
     .then((res) => res.text())
     .then((respuesta) => {
+      // Insertar la respuesta en el contenedor
       document.getElementById(destino).innerHTML = respuesta;
     })
     .catch(() => {
@@ -55,8 +64,12 @@ function obtenerVista(controlador, metodo, destino, parametrosExtra = "") {
     });
 }
 
+// Buscar datos enviando un formulario (AJAX)
+// Ejemplo: buscar('Usuarios', 'getVistaListadoUsuarios', 'formularioBuscar', 'capaResultados')
 function buscar(controlador, metodo, formulario, destino) {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
+  
+  // Obtener los datos del formulario y convertirlos a URL params
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById(formulario))).toString();
   
   fetch("CFrontal.php?" + parametros)
