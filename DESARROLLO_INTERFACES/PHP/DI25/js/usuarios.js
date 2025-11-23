@@ -1,7 +1,9 @@
+// Llama a la función genérica 'buscar' para obtener la lista de usuarios filtrada
 function buscarUsuarios() {
   buscar("Usuarios", "getVistaListadoUsuarios", "formularioBuscar", "capaResultadosBusqueda");
 }
 
+// Resetea el formulario y muestra todos los usuarios
 function verTodosUsuarios() {
   document.getElementById("formularioBuscar").reset();
   buscar("Usuarios", "getVistaListadoUsuarios", "formularioBuscar", "capaResultadosBusqueda");
@@ -12,6 +14,7 @@ function limpiarBusqueda() {
   document.getElementById("capaResultadosBusqueda").innerHTML = '<p class="text-muted text-center">Utilice los campos de búsqueda</p>';
 }
 
+// Genera y muestra el formulario HTML para crear un nuevo usuario
 function mostrarFormularioCrear() {
   const formulario = `
     <div id="mensajesUsuario"></div>
@@ -62,6 +65,7 @@ function mostrarFormularioCrear() {
   document.getElementById("formularioUsuario").style.display = "block";
 }
 
+// Pide al servidor los datos de un usuario y muestra el formulario de edición
 function editarUsuario(idUsuario) {
   fetch(`CFrontal.php?controlador=Usuarios&metodo=obtenerUsuario&idUsuario=${idUsuario}`)
     .then((response) => response.json())
@@ -121,31 +125,32 @@ function mostrarFormularioEditar(usuario) {
   document.getElementById("formularioUsuario").style.display = "block";
 }
 
+// Recoge datos del formulario, valida y envía petición para crear usuario
 function guardarUsuario() {
   limpiarMensajes("mensajesUsuario");
-  
+
   const nombre = document.getElementById("nombreUsuario").value.trim();
   const apellido1 = document.getElementById("apellido1Usuario").value.trim();
   const mail = document.getElementById("mailUsuario").value.trim();
   const movil = document.getElementById("movilUsuario").value.trim();
   const login = document.getElementById("loginUsuario").value.trim();
   const pass = document.getElementById("passUsuario").value.trim();
-  
+
   if (!nombre || !apellido1 || !mail || !login || !pass) {
     mostrarError("mensajesUsuario", "Todos los campos marcados con * son obligatorios");
     return;
   }
-  
+
   if (!validarEmail(mail)) {
     mostrarError("mensajesUsuario", "El email no es válido");
     return;
   }
-  
+
   if (movil && !validarMovil(movil)) {
     mostrarError("mensajesUsuario", "El móvil no es válido");
     return;
   }
-  
+
   let parametros = "controlador=Usuarios&metodo=crearUsuario";
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById("formUsuario"))).toString();
 
@@ -164,9 +169,10 @@ function guardarUsuario() {
     });
 }
 
+// Recoge datos, valida y envía petición para actualizar usuario existente
 function actualizarUsuario() {
   limpiarMensajes("mensajesUsuario");
-  
+
   const nombre = document.getElementById("nombreUsuario").value.trim();
   const apellido1 = document.getElementById("apellido1Usuario").value.trim();
   const apellido2 = document.getElementById("apellido2Usuario").value.trim();
@@ -174,22 +180,22 @@ function actualizarUsuario() {
   const movil = document.getElementById("movilUsuario").value.trim();
   const login = document.getElementById("loginUsuario").value.trim();
   const sexo = document.getElementById("sexoUsuario").value;
-  
+
   if (!nombre || !apellido1 || !mail || !login) {
     mostrarError("mensajesUsuario", "Todos los campos obligatorios deben estar completos");
     return;
   }
-  
+
   if (!validarEmail(mail)) {
     mostrarError("mensajesUsuario", "El email no es válido");
     return;
   }
-  
+
   if (movil && !validarMovil(movil)) {
     mostrarError("mensajesUsuario", "El móvil no es válido");
     return;
   }
-  
+
   const datos = {
     controlador: "Usuarios",
     metodo: "actualizarUsuario",
@@ -226,6 +232,7 @@ function cancelarFormulario() {
   document.getElementById("formularioUsuario").innerHTML = "";
 }
 
+// Pide confirmación y envía petición para eliminar (desactivar) un usuario
 function eliminarUsuario(idUsuario, nombreUsuario) {
   if (confirm(`¿Eliminar al usuario '${nombreUsuario}'?`)) {
     const datos = {

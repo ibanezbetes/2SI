@@ -2,13 +2,18 @@
 session_start(); 
 $usuario='';
 $pass='';
+// Extraer las variables del formulario (POST) a variables locales ($usuario, $pass)
 extract($_POST);
 $msj='';
 
+// Validar que los campos no estén vacíos
 if($usuario=='' || $pass==''){
     $msj='Debes completar los campos.';
 }else{
+    // Comprobar credenciales (Hardcoded: usuario 'javier' y contraseña '123')
+    // En una aplicación real, esto se comprobaría contra la base de datos
     if($usuario=='javier' && $pass=='123'){
+        // Guardar el usuario en la sesión y redirigir al index
         $_SESSION['login']=$usuario;
         header('Location: index.php'); 
         exit();
@@ -47,6 +52,7 @@ if($usuario=='' || $pass==''){
         </form>
 
         <script>
+            // Validación del lado del cliente con JavaScript
             document.getElementById('formularioLogin').addEventListener('submit', function(e){
                 const usuario = document.getElementById('usuario').value.trim();
                 const pass = document.getElementById('pass').value.trim();

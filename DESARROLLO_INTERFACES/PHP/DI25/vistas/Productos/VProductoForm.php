@@ -1,10 +1,12 @@
 <?php
     // Vista formulario producto. Usa $datos['producto'] si existe para editar
+    // Verificar si estamos editando un producto existente
     $p = array();
     if(isset($datos) && isset($datos['producto']) && is_array($datos['producto'])){
         $p = $datos['producto'];
     }
 
+    // Asignar valores a variables para rellenar el formulario
     $id = isset($p['idProducto']) ? $p['idProducto'] : '';
     $producto = isset($p['producto']) ? $p['producto'] : '';
     $descripcion = isset($p['descripcion']) ? $p['descripcion'] : '';

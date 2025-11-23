@@ -1,5 +1,6 @@
 <?php
 // Configuración de la base de datos
+// Constantes de conexión a la base de datos
 define('HOST', '127.0.0.1');
 define('USER', 'root');
 define('PASS', '');
@@ -22,6 +23,8 @@ class DAO{
     }
 
     // Ejecutar consultas SELECT (devuelve array de resultados)
+    // Método para realizar consultas SELECT
+    // Devuelve un array con todas las filas encontradas
     public function consultar($SQL){
         $res = $this->conexion->query($SQL, MYSQLI_USE_RESULT);
         $filas = array();
@@ -38,6 +41,8 @@ class DAO{
     }
 
     // Ejecutar INSERT (devuelve el ID del nuevo registro)
+    // Método para realizar INSERT
+    // Devuelve el ID autogenerado del nuevo registro
     public function insertar($SQL){
         $this->conexion->query($SQL, MYSQLI_USE_RESULT);
         
@@ -50,6 +55,8 @@ class DAO{
     }
 
     // Ejecutar UPDATE (devuelve número de filas afectadas)
+    // Método para realizar UPDATE
+    // Devuelve el número de filas que fueron modificadas
     public function actualizar($SQL){
         $this->conexion->query($SQL, MYSQLI_USE_RESULT);
         
@@ -62,6 +69,8 @@ class DAO{
     }
 
     // Ejecutar DELETE (devuelve número de filas eliminadas)
+    // Método para realizar DELETE
+    // Devuelve el número de filas eliminadas
     public function borrar($SQL){
         $this->conexion->query($SQL);
         return $this->conexion->affected_rows;

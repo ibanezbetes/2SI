@@ -1,3 +1,4 @@
+// Busca productos aplicando los filtros del formulario
 function buscarProductos() {
   buscar("Productos", "getVistaListadoProductos", "formularioBuscarProducto", "capaResultadosProductos");
 }
@@ -7,6 +8,7 @@ function verTodosProductos() {
   buscar("Productos", "getVistaListadoProductos", "formularioBuscarProducto", "capaResultadosProductos");
 }
 
+// Muestra el formulario vacío para crear un nuevo producto
 function mostrarFormularioCrearProducto() {
   const formulario = `
     <div id="mensajesProducto"></div>
@@ -37,6 +39,7 @@ function mostrarFormularioCrearProducto() {
   document.getElementById("formularioProducto").style.display = "block";
 }
 
+// Obtiene datos del producto y muestra formulario para editar
 function editarProducto(idProducto) {
   fetch(`CFrontal.php?controlador=Productos&metodo=obtenerProducto&idProducto=${idProducto}`)
     .then((response) => response.json())
@@ -76,20 +79,21 @@ function mostrarFormularioEditarProducto(producto) {
   document.getElementById("formularioProducto").style.display = "block";
 }
 
+// Valida y envía datos para crear un nuevo producto
 function guardarProducto() {
   limpiarMensajes("mensajesProducto");
-  
+
   const producto = document.getElementById("productoNombre").value.trim();
   const precio = document.getElementById("productoPrecio").value.trim();
-  
+
   if (!producto || !precio) {
     mostrarError("mensajesProducto", "El nombre y precio son obligatorios");
     return;
   }
-  
+
   let parametros = "controlador=Productos&metodo=crearProducto";
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById("formProducto"))).toString();
-  
+
   fetch("CFrontal.php?" + parametros)
     .then((response) => response.text())
     .then((data) => {
@@ -105,9 +109,10 @@ function guardarProducto() {
     });
 }
 
+// Valida y envía datos para actualizar un producto existente
 function actualizarProducto() {
   limpiarMensajes("mensajesProducto");
-  
+
   const datos = {
     controlador: "Productos",
     metodo: "actualizarProducto",
@@ -117,7 +122,7 @@ function actualizarProducto() {
     stock: document.getElementById("productoStock").value,
     precioVenta: document.getElementById("productoPrecio").value
   };
-  
+
   fetch("CFrontal.php", { method: "POST", body: new URLSearchParams(datos) })
     .then((response) => response.text())
     .then((data) => {
@@ -138,6 +143,7 @@ function cancelarFormularioProducto() {
   document.getElementById("formularioProducto").innerHTML = "";
 }
 
+// Elimina un producto tras confirmación
 function eliminarProducto(idProducto, nombreProducto) {
   if (confirm(`¿Eliminar '${nombreProducto}'?`)) {
     const datos = {
@@ -145,7 +151,7 @@ function eliminarProducto(idProducto, nombreProducto) {
       metodo: "eliminarProducto",
       idProducto: idProducto
     };
-    
+
     fetch("CFrontal.php", { method: "POST", body: new URLSearchParams(datos) })
       .then((response) => response.text())
       .then((data) => {

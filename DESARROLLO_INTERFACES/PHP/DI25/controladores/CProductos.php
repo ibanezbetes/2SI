@@ -3,6 +3,7 @@ require_once 'controladores/Controlador.php';
 require_once 'vistas/Vista.php';
 require_once 'modelos/DAO.php';
 
+// Clase Controlador de Productos
 class CProductos extends Controlador{
     private $dao;
     
@@ -10,10 +11,12 @@ class CProductos extends Controlador{
         $this->dao = new DAO();
     }
     
+    // Mostrar la vista principal de productos
     public function getVistaProductosPrincipal($datos=array()){
         Vista::render('vistas/Productos/VProductosPrincipal.php');
     }
     
+    // Listar productos según filtros de búsqueda
     public function getVistaListadoProductos($datos=array()){
         extract($datos);
         $producto = isset($producto) ? $producto : '';
@@ -40,6 +43,7 @@ class CProductos extends Controlador{
         }
     }
     
+    // Obtener datos de un producto para edición (JSON)
     public function obtenerProducto($datos=array()){
         extract($datos);
         $sql = "SELECT * FROM productos WHERE idProducto = $idProducto";
@@ -48,6 +52,7 @@ class CProductos extends Controlador{
         echo json_encode(count($productos) > 0 ? $productos[0] : ['error'=>'No encontrado']);
     }
     
+    // Crear un nuevo producto en la BD
     public function crearProducto($datos=array()){
         extract($datos);
         if(empty($producto) || !isset($precioVenta)){
@@ -60,6 +65,7 @@ class CProductos extends Controlador{
         echo $id > 0 ? '<div class="alert alert-success">Producto creado exitosamente</div>' : '<div class="alert alert-danger">Error al crear</div>';
     }
     
+    // Actualizar datos de un producto
     public function actualizarProducto($datos=array()){
         extract($datos);
         if(empty($idProducto) || empty($producto) || !isset($precioVenta)){
@@ -71,6 +77,7 @@ class CProductos extends Controlador{
         echo $res >= 0 ? '<div class="alert alert-success">Producto actualizado exitosamente</div>' : '<div class="alert alert-danger">Error al actualizar</div>';
     }
     
+    // Eliminar producto (baja lógica)
     public function eliminarProducto($datos=array()){
         extract($datos);
         $sql = "UPDATE productos SET activo='N' WHERE idProducto=$idProducto";

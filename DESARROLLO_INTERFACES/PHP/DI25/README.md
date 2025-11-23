@@ -1,200 +1,54 @@
-# Aplicación Web de Gestión - Proyecto DI
+# Proyecto de Gestión de Usuarios y Productos (DI25)
 
-Aplicación web para gestionar usuarios y productos usando PHP, JavaScript y MySQL.
+Este proyecto es una aplicación web desarrollada en PHP siguiendo el patrón de diseño **MVC (Modelo-Vista-Controlador)**. Permite la gestión de usuarios y productos, incluyendo funcionalidades de creación, lectura, actualización y eliminación (CRUD).
 
-## ¿Qué hace esta aplicación?
+## 📂 Estructura del Proyecto
 
-Es un CRUD (Crear, Leer, Actualizar, Borrar) completo para:
-- **Usuarios**: nombre, apellidos, email, móvil, login, contraseña
-- **Productos**: nombre, descripción, stock, precio
+El proyecto está organizado en carpetas para separar la lógica, los datos y la interfaz:
 
-## Tecnologías usadas
+- **`/` (Raíz)**: Contiene los archivos principales de entrada (`index.php`, `login.php`) y el controlador frontal (`CFrontal.php`).
+- **`controladores/`**: Contiene la lógica de negocio.
+    - `CUsuarios.php`: Gestiona las operaciones relacionadas con usuarios.
+    - `CProductos.php`: Gestiona las operaciones relacionadas con productos.
+    - `Controlador.php`: Clase base para los controladores.
+- **`modelos/`**: Contiene la lógica de acceso a datos.
+    - `DAO.php`: Clase para conectar con la base de datos MySQL y ejecutar consultas.
+- **`vistas/`**: Contiene los archivos HTML/PHP que ve el usuario.
+    - `Usuarios/`: Vistas específicas para usuarios (lista, formulario).
+    - `Productos/`: Vistas específicas para productos.
+    - `Vista.php`: Clase auxiliar para renderizar las vistas.
+- **`js/`**: Archivos JavaScript para la interactividad en el cliente (AJAX, validaciones).
+- **`css/`**: Estilos de la aplicación.
+- **`librerias/`**: Librerías externas como Bootstrap.
 
-- **PHP 7+**: Backend y lógica del servidor
-- **MySQL**: Base de datos
-- **JavaScript**: Interactividad sin recargar la página (AJAX)
-- **Bootstrap 5**: Diseño responsive
-- **HTML/CSS**: Estructura y estilos
+## 🚀 Funcionamiento Global
 
-## Cómo funciona (Arquitectura MVC)
+### 1. Inicio de Sesión
+El punto de entrada es `login.php`. Aquí el usuario introduce sus credenciales. Si son correctas (usuario: `javier`, contraseña: `123`), se crea una sesión y se redirige a `index.php`.
 
-El proyecto usa el patrón **Modelo-Vista-Controlador**:
+### 2. Controlador Frontal (`CFrontal.php`)
+Todas las peticiones AJAX pasan por este archivo. Actúa como un "semáforo" que dirige el tráfico:
+1. Recibe qué **controlador** y qué **método** se quiere ejecutar.
+2. Carga el archivo del controlador correspondiente.
+3. Ejecuta la acción solicitada.
 
-### 1. Modelo (modelos/)
-Gestiona la conexión con la base de datos.
-- `DAO.php`: Clase que conecta con MySQL y ejecuta consultas
+### 3. Gestión de Usuarios
+- **Listar**: Muestra una tabla con los usuarios activos. Permite filtrar por nombre o email.
+- **Crear**: Muestra un formulario para dar de alta un nuevo usuario.
+- **Editar**: Carga los datos de un usuario existente para modificarlos.
+- **Eliminar**: Marca un usuario como inactivo (borrado lógico).
 
-### 2. Vista (vistas/)
-Las páginas HTML que ve el usuario.
-- `VUsuariosPrincipal.php`: Formulario de búsqueda de usuarios
-- `VProductosPrincipal.php`: Formulario de búsqueda de productos
+### 4. Gestión de Productos
+Similar a usuarios, permite gestionar el inventario de productos, controlando stock y precios.
 
-### 3. Controlador (controladores/)
-Procesa las peticiones y coordina Modelo y Vista.
-- `CUsuarios.php`: Lógica de usuarios (crear, editar, eliminar)
-- `CProductos.php`: Lógica de productos
+## 🛠️ Tecnologías Utilizadas
+- **PHP**: Lenguaje del servidor.
+- **MySQL**: Base de datos.
+- **JavaScript (Vanilla)**: Lógica del cliente y peticiones `fetch` (AJAX).
+- **Bootstrap 5**: Diseño responsivo y componentes visuales.
+- **HTML/CSS**: Estructura y estilos.
 
-### 4. Controlador Frontal
-- `CFrontal.php`: Recibe TODAS las peticiones y las dirige al controlador correcto
-
-### 5. JavaScript Modular (js/)
-- `utils.js`: Funciones comunes (validaciones, mensajes, AJAX)
-- `usuarios.js`: Funciones específicas de usuarios
-- `productos.js`: Funciones específicas de productos
-
-## Flujo de una petición
-
-```
-Usuario hace clic → JavaScript (AJAX) → CFrontal.php → Controlador → Modelo (BD) → Vista → Usuario
-```
-
-**Ejemplo**: Crear un usuario
-1. Usuario rellena formulario y hace clic en "Guardar"
-2. `usuarios.js` valida los datos
-3. `usuarios.js` envía petición AJAX a `CFrontal.php?controlador=Usuarios&metodo=crearUsuario`
-4. `CFrontal.php` carga `CUsuarios.php` y llama al método `crearUsuario()`
-5. `CUsuarios.php` usa `DAO.php` para insertar en la base de datos
-6. Devuelve mensaje de éxito o error
-7. JavaScript muestra el mensaje al usuario
-
-## Instalación
-
-### Requisitos
-- XAMPP o WAMP (incluye Apache + MySQL + PHP)
-- Navegador web moderno
-
-### Pasos
-1. Instala XAMPP desde https://www.apachefriends.org/
-2. Copia esta carpeta en `C:\xampp\htdocs\`
-3. Abre XAMPP Control Panel y arranca Apache y MySQL
-4. Abre phpMyAdmin: http://localhost/phpmyadmin
-5. Crea una base de datos llamada `db_di25`
-6. Importa el archivo `modelos/usuarios y productos 2025 09 29.sql`
-7. Abre en el navegador: http://localhost/nombre-carpeta/login.php
-
-## Login
-
-Para entrar a la aplicación:
-- **Usuario**: javier
-- **Contraseña**: 123
-
-## Estructura del proyecto
-
-```
-proyecto/
-├── controladores/          # Lógica de negocio
-│   ├── Controlador.php     # Clase base
-│   ├── CUsuarios.php       # Controlador de usuarios
-│   └── CProductos.php      # Controlador de productos
-│
-├── modelos/                # Acceso a datos
-│   ├── DAO.php             # Conexión y consultas a MySQL
-│   └── *.sql               # Script de la base de datos
-│
-├── vistas/                 # Páginas HTML
-│   ├── Vista.php           # Clase para renderizar vistas
-│   ├── Usuarios/           # Vistas de usuarios
-│   └── Productos/          # Vistas de productos
-│
-├── js/                     # JavaScript modular
-│   ├── utils.js            # Funciones comunes
-│   ├── usuarios.js         # Gestión de usuarios
-│   └── productos.js        # Gestión de productos
-│
-├── css/                    # Estilos
-│   └── estilos.css         # Tema oscuro personalizado
-│
-├── iconos/                 # Imágenes
-│   ├── logo.png
-│   ├── login.png
-│   └── logout.png
-│
-├── librerias/              # Librerías externas
-│   └── bootstrap-5.3.8/    # Framework CSS
-│
-├── CFrontal.php            # Controlador frontal (enrutador)
-├── index.php               # Página principal
-├── login.php               # Página de login
-├── logout.php              # Cerrar sesión
-└── README.md               # Este archivo
-```
-
-## Características principales
-
-### Usuarios
-- ✅ Buscar por nombre o email
-- ✅ Ver todos los usuarios
-- ✅ Crear nuevo usuario con validación
-- ✅ Editar usuario existente
-- ✅ Eliminar usuario (borrado lógico)
-- ✅ Validación de email y móvil
-
-### Productos
-- ✅ Buscar por nombre
-- ✅ Ver todos los productos
-- ✅ Crear nuevo producto
-- ✅ Editar producto existente
-- ✅ Eliminar producto (borrado lógico)
-
-### Diseño
-- ✅ Tema oscuro para no cansar la vista
-- ✅ Responsive (funciona en móvil)
-- ✅ Mensajes de éxito y error
-- ✅ Sin recargar la página (AJAX)
-
-## Conceptos que aprendí
-
-### PHP
-- Clases y objetos (POO)
-- Conexión a MySQL con mysqli
-- Patrón MVC
-- Sesiones para el login
-- Consultas SQL (SELECT, INSERT, UPDATE)
-
-### JavaScript
-- Fetch API para AJAX
-- Validación de formularios
-- Manipulación del DOM
-- Modularización del código
-
-### Base de datos
-- Diseño de tablas
-- Relaciones entre tablas
-- Consultas con filtros
-- Borrado lógico (campo 'activo')
-
-## Problemas que resolví
-
-1. **AJAX con PHP**: Al principio no entendía cómo enviar datos sin recargar la página. Aprendí a usar `fetch()` y a procesar las respuestas.
-
-2. **Modularización**: Cuando el JavaScript llegó a 500 líneas, lo dividí en 3 archivos (utils, usuarios, productos) para que fuera más fácil de mantener.
-
-3. **Validaciones**: Tuve que aprender expresiones regulares para validar emails y móviles.
-
-4. **Tema oscuro**: Quería que la aplicación no cansara la vista, así que implementé un tema oscuro con variables CSS.
-
-## Posibles mejoras
-
-Si tuviera más tiempo, me gustaría:
-- [ ] Añadir paginación a las tablas
-- [ ] Subir fotos de productos
-- [ ] Sistema de roles (admin, usuario)
-- [ ] Recuperar contraseña por email
-- [ ] Exportar datos a Excel
-- [ ] Gráficos de estadísticas
-
-## Notas técnicas
-
-### Seguridad
-⚠️ **Importante**: Este es un proyecto educativo. En producción habría que:
-- Usar prepared statements para evitar SQL injection
-- Hashear contraseñas con password_hash() en lugar de md5()
-- Validar datos en el servidor, no solo en JavaScript
-- Usar HTTPS
-
-### Base de datos
-La aplicación usa "borrado lógico": cuando eliminas un usuario o producto, no se borra de la base de datos, solo se marca como inactivo (activo='N'). Así se puede recuperar si fue un error.
-
-## Créditos
-
-Proyecto realizado para la asignatura de Desarrollo de Interfaces.
+## 📝 Notas
+- La autenticación actual es básica y está "hardcoded" para demostración.
+- Las contraseñas de nuevos usuarios se guardan encriptadas con MD5.
+- La aplicación utiliza **AJAX** para que la página no se recargue completamente al navegar entre secciones, ofreciendo una experiencia más fluida.

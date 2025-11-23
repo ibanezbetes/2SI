@@ -1,6 +1,9 @@
 <?php 
+// Iniciar el almacenamiento en búfer de la sesión para usar variables de sesión
 session_start();
 
+// Comprobar si el usuario ha iniciado sesión correctamente
+// Si existe la variable de sesión 'login', mostramos el botón de Logout
 if(isset($_SESSION['login']) && $_SESSION['login']!=''){
     $btnlog = '<div class="d-flex align-items-center justify-content-end">
                    <span class="me-2">' . $_SESSION['login'] . '</span>
@@ -8,6 +11,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
                        <img src="iconos/logout.png" style="height:2em;" alt="Logout">
                    </a>
                </div>';
+// Si no ha iniciado sesión, mostramos el botón de Login
 }else{
     $btnlog = '<a href="login.php">
                    <img src="iconos/login.png" style="height:2em;" alt="Login">
@@ -24,6 +28,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
         <script src="librerias/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body>
+    <!-- Contenedor principal para la cabecera -->
         <div class="container-fluid py-2">
             <div class="row align-items-center">
                 <div class="col-md-2 col-3">
@@ -38,6 +43,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
             </div>
         </div>
     <div class="container-fluid">
+    <!-- Barra de navegación (Navbar) -->
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
 <div class="container-fluid">
     <a class="navbar-brand" href="#">Navbar</a>
@@ -60,6 +66,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
             Mtto.Datos
         </a>
         <ul class="dropdown-menu">
+            <!-- Enlace que carga dinámicamente la vista de usuarios usando AJAX -->
             <li><a class="dropdown-item" 
                 onclick="obtenerVista('Usuarios','getVistaUsuariosPrincipal','capaContenido');" >Usuarios</a></li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
@@ -74,6 +81,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
     <div class="container-fluid">
         <div id="appAlert" class="mx-2 mt-3"></div>
     </div>
+    <!-- Área donde se cargará el contenido dinámico (Vistas) sin recargar la página -->
     <div class="container-fluid" id="capaContenido">
         Contenido
     </div>

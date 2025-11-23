@@ -1,6 +1,7 @@
 <?php
     echo'
     <div class="container-fluid">
+        <!-- Formulario de búsqueda de usuarios -->
         <form id="formularioBuscar">
             <div class="row">
                 <div class="col-md-6 col-sm-12">
@@ -31,9 +32,11 @@
         </form>
         <div class="row mt-4">
             <div class="col-md-12">
+                <!-- Contenedor para el formulario de crear/editar usuario (oculto por defecto) -->
                 <div id="formularioUsuario" style="display:none;" class="mb-4">
                     <!-- Aquí aparecerá el formulario de creación/edición -->
                 </div>
+                <!-- Contenedor donde se mostrará la tabla de resultados -->
                 <div id="capaResultadosBusqueda">
                     <p class="text-muted text-center">Utilice los campos de búsqueda para encontrar usuarios</p>
                 </div>

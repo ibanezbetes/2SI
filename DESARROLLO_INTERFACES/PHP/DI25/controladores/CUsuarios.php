@@ -3,6 +3,8 @@ require_once 'controladores/Controlador.php';
 require_once 'vistas/Vista.php';
 require_once 'modelos/DAO.php';
 
+// Clase Controlador de Usuarios
+// Hereda de la clase base Controlador
 class CUsuarios extends Controlador{
     private $dao;
     
@@ -10,16 +12,20 @@ class CUsuarios extends Controlador{
         $this->dao = new DAO();
     }
     
+    // Método para mostrar la vista principal de gestión de usuarios
     public function getVistaUsuariosPrincipal($datos=array()){
         Vista::render('vistas/Usuarios/VUsuariosPrincipal.php');
     }
     
+    // Método para buscar y listar usuarios (se llama por AJAX)
     public function getVistaListadoUsuarios($datos=array()){
         extract($datos);
         $nombre = isset($nombre) ? $nombre : '';
         $email = isset($email) ? $email : '';
         
+        // Construir la consulta SQL base
         $sql = "SELECT idUsuario, nombre, apellido1, apellido2, mail, movil, activo FROM usuarios WHERE activo='S'";
+        // Añadir filtros si se han especificado
         if($nombre != '') $sql .= " AND nombre LIKE '%$nombre%'";
         if($email != '') $sql .= " AND mail LIKE '%$email%'";
         $sql .= " ORDER BY nombre, apellido1";
@@ -43,6 +49,7 @@ class CUsuarios extends Controlador{
         }
     }
     
+    // Obtener datos de un usuario específico (para editar) y devolverlos como JSON
     public function obtenerUsuario($datos=array()){
         extract($datos);
         $sql = "SELECT * FROM usuarios WHERE idUsuario = $idUsuario";
@@ -51,12 +58,14 @@ class CUsuarios extends Controlador{
         echo json_encode(count($usuarios) > 0 ? $usuarios[0] : ['error'=>'No encontrado']);
     }
     
+    // Insertar un nuevo usuario en la base de datos
     public function crearUsuario($datos=array()){
         extract($datos);
         if(empty($nombre) || empty($apellido1) || empty($mail) || empty($login) || empty($pass)){
             echo '<div class="alert alert-danger">Campos obligatorios incompletos</div>';
             return;
         }
+        // Encriptar contraseña con MD5 (Nota: En producción usar password_hash)
         $passEncriptada = md5($pass);
         $fechaAlta = date('Y-m-d');
         $sql = "INSERT INTO usuarios (nombre, apellido1, apellido2, mail, movil, login, pass, sexo, fechaAlta, activo) 
@@ -65,6 +74,7 @@ class CUsuarios extends Controlador{
         echo $id > 0 ? '<div class="alert alert-success">Usuario creado exitosamente</div>' : '<div class="alert alert-danger">Error al crear</div>';
     }
     
+    // Actualizar los datos de un usuario existente
     public function actualizarUsuario($datos=array()){
         extract($datos);
         if(empty($idUsuario) || empty($nombre) || empty($apellido1) || empty($mail) || empty($login)){
@@ -77,6 +87,7 @@ class CUsuarios extends Controlador{
         echo $res >= 0 ? '<div class="alert alert-success">Usuario actualizado exitosamente</div>' : '<div class="alert alert-danger">Error al actualizar</div>';
     }
     
+    // Eliminado lógico de un usuario (poner activo='N')
     public function eliminarUsuario($datos=array()){
         extract($datos);
         $sql = "UPDATE usuarios SET activo='N' WHERE idUsuario=$idUsuario";

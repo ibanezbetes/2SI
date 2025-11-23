@@ -1,10 +1,13 @@
 <?php
     // Si se pasa $usuario en $datos, usarlo para rellenar los campos (editar)
+    // Comprobar si vienen datos de un usuario para editar
+    // Si $datos['usuario'] existe, rellenamos las variables con sus valores
     $u = array();
     if(isset($datos) && isset($datos['usuario']) && is_array($datos['usuario'])){
         $u = $datos['usuario'];
     }
 
+    // Inicializar variables con valores del usuario o vacíos si es nuevo
     $id = isset($u['idUsuario']) ? $u['idUsuario'] : '';
     $nombre = isset($u['nombre']) ? $u['nombre'] : '';
     $apellido1 = isset($u['apellido1']) ? $u['apellido1'] : '';
@@ -48,6 +51,7 @@
                 </select>
             </div>';
 
+    // Mostrar botones diferentes según si es creación o edición
     if($id==''){
         echo '    <div class="d-grid gap-2">
                     <button type="button" class="btn btn-primary" onclick="guardarUsuario();">💾 Guardar Usuario</button>

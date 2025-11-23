@@ -45,7 +45,11 @@ function limpiarMensajes(contenedorId) {
 }
 
 // Cargar una vista desde el servidor (AJAX)
-// Ejemplo: obtenerVista('Usuarios', 'getVistaUsuariosPrincipal', 'capaContenido')
+// Función genérica para cargar vistas mediante AJAX
+// controlador: nombre del controlador (ej: 'Usuarios')
+// metodo: nombre del método a llamar (ej: 'getVistaUsuariosPrincipal')
+// destino: ID del elemento HTML donde se pintará el resultado
+// parametrosExtra: parámetros adicionales para la URL
 function obtenerVista(controlador, metodo, destino, parametrosExtra = "") {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
   if (parametrosExtra) {
@@ -65,13 +69,15 @@ function obtenerVista(controlador, metodo, destino, parametrosExtra = "") {
 }
 
 // Buscar datos enviando un formulario (AJAX)
-// Ejemplo: buscar('Usuarios', 'getVistaListadoUsuarios', 'formularioBuscar', 'capaResultados')
+// Función para enviar formularios de búsqueda por AJAX
+// Recoge todos los campos del formulario y los envía al servidor
+// Pinta la respuesta en el contenedor 'destino'
 function buscar(controlador, metodo, formulario, destino) {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
-  
+
   // Obtener los datos del formulario y convertirlos a URL params
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById(formulario))).toString();
-  
+
   fetch("CFrontal.php?" + parametros)
     .then((res) => res.text())
     .then((vista) => {
