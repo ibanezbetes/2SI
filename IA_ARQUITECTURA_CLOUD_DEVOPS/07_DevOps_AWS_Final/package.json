@@ -1,0 +1,11 @@
+{
+  "name": "mantenigram-root",
+  "version": "1.0.0",
+  "scripts": {
+    "start:backend": "cd backend && npm run start:dev",
+    "start:frontend": "cd frontend && npm start",
+    "android": "cd frontend && npm run android",
+    "ios": "cd frontend && npm run ios",
+    "seed": "cd backend && npm run seed"
+  }
+}

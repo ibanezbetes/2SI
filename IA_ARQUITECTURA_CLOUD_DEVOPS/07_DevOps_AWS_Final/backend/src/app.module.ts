@@ -27,6 +27,9 @@ import { Favorite } from './favorites/entities/favorite.entity';
         database: configService.get<string>('DB_DATABASE'),
         entities: [User, Item, Favorite],
         synchronize: true, // Auto-create tables (dev only)
+        ssl: {
+          rejectUnauthorized: false,
+        },
       }),
       inject: [ConfigService],
     }),

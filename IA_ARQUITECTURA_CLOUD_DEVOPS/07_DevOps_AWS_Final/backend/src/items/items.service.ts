@@ -12,12 +12,10 @@ export class ItemsService {
     private itemsRepository: Repository<Item>,
   ) {}
 
-  async create(createItemDto: CreateItemDto) {
-    // TODO: Get userId from auth/context. For now, using a demo userId.
-    const demoUserId = 'demo-user-id'; 
+  async create(createItemDto: CreateItemDto, userId?: string) {
     const item = this.itemsRepository.create({
       ...createItemDto,
-      userId: demoUserId,
+      userId: userId || '00000000-0000-0000-0000-000000000000',
     });
     return this.itemsRepository.save(item);
   }

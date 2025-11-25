@@ -10,13 +10,17 @@ export class UploadsService {
   private bucketName: string;
 
   constructor(private configService: ConfigService) {
-    this.s3Client = new S3Client({
-      region: this.configService.get('AWS_REGION') || 'us-east-1',
-      credentials: {
-        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID') || '',
-        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY') || '',
-      },
-    });
+    const region = this.configService.get('AWS_REGION') || 'us-east-1';
+    const accessKeyId = this.configService.get('AWS_ACCESS_KEY_ID');
+    const secretAccessKey = this.configService.get('AWS_SECRET_ACCESS_KEY');
+
+    const clientConfig: any = { region };
+
+    if (accessKeyId && secretAccessKey) {
+      clientConfig.credentials = { accessKeyId, secretAccessKey };
+    }
+
+    this.s3Client = new S3Client(clientConfig);
     this.bucketName = this.configService.get('AWS_S3_BUCKET_NAME') || '';
   }
 

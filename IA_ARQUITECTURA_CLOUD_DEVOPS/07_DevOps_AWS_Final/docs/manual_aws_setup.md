@@ -36,14 +36,14 @@ Sigue estos pasos para crear los recursos necesarios en AWS y conectar tu aplica
 8.  Entra en tu bucket, ve a la pestaña **Permissions** y baja a **CORS configuration**.
 9.  Pega este JSON para permitir subir imágenes desde tu app:
     ```json
-    [
+   [
       {
         "AllowedHeaders": ["*"],
         "AllowedMethods": ["PUT", "GET", "POST", "HEAD"],
         "AllowedOrigins": ["*"],
         "ExposeHeaders": []
       }
-    ]
+    ] 
     ```
 
 ## 3. Credenciales de Acceso (IAM)
