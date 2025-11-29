@@ -1,0 +1,618 @@
+================================================================================
+                    INSTRUCCIONES COMPLETAS PARA EL EXAMEN
+                    Backend NestJS + Frontend React Native
+================================================================================
+
+========================================
+1. DEPENDENCIAS E INSTALACIÓN
+========================================
+
+--- CREAR PROYECTO NESTJS DESDE CERO (SI ES NECESARIO) ---
+
+npm i -g @nestjs/cli
+nest new nombre-proyecto
+cd nombre-proyecto
+
+--- DEPENDENCIAS PRINCIPALES DEL BACKEND ---
+
+npm install --save @nestjs/typeorm typeorm sqlite3 @nestjs/config class-validator class-transformer @nestjs/mapped-types
+
+--- SI HAY CONFLICTOS, USAR --legacy-peer-deps ---
+
+npm install sqlite3 --legacy-peer-deps
+npm install typeorm@0.3.20 @nestjs/typeorm@10.0.2 --legacy-peer-deps
+
+--- LISTA COMPLETA DE DEPENDENCIAS (package.json) ---
+
+{
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/mapped-types": "^2.1.0",
+    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/typeorm": "^10.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "dotenv": "^17.2.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "sqlite3": "^5.x.x",
+    "typeorm": "^0.3.20"
+  }
+}
+
+
+========================================
+2. GENERADORES DE NEST (COMANDOS)
+========================================
+
+--- Generar módulo ---
+nest generate module peliculas
+nest g mo peliculas
+
+--- Generar controlador ---
+nest generate controller peliculas
+nest g co peliculas
+
+--- Generar servicio ---
+nest generate service peliculas
+nest g s peliculas
+
+--- Generar recurso COMPLETO (módulo + controlador + servicio + entity + DTOs) ---
+nest generate resource peliculas
+nest g res peliculas
+# Seleccionar: REST API
+# Transport layer: (none)
+# CRUD entry points: Yes
+
+
+========================================
+3. CÓDIGO COMPLETO DEL BACKEND (src/)
+========================================
+
+
+========================================
+3. CÓDIGO COMPLETO DEL BACKEND (src/)
+========================================
+
+--- ARCHIVO: src/main.ts ---
+
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();
+
+
+--- ARCHIVO: src/app.module.ts ---
+
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { DatabaseModule } from './database/database.module';
+import { PeliculasModule } from './peliculas/peliculas.module';
+
+@Module({
+  imports: [DatabaseModule, PeliculasModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+
+
+--- ARCHIVO: src/config/config.ts ---
+
+import { registerAs } from "@nestjs/config"
+
+// Configuración SOLO para SQLite
+
+export default registerAs('config', () => ({
+    sqliteDb: process.env.SQLITE_DB ?? './data/peliculas.sqlite',
+    api:{
+        apiKey: process.env.API_KEY,
+        apiKeyProd: process.env.API_KEY_PROD,
+    },
+    environment: process.env.NODE_ENV || 'dev',
+}));
+
+
+--- ARCHIVO: src/database/database.module.ts ---
+
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigType } from '@nestjs/config';
+import config from '../config/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load:[config],
+            envFilePath:
+            process.env.NODE_ENV === 'prod'
+                ? '.prod.env'
+                : process.env.NODE_ENV === 'stg'
+                ? '.stage.env'
+                : '.env',
+        }),
+
+        TypeOrmModule.forRootAsync({
+            inject: [config.KEY],
+            useFactory: (cfg: ConfigType<typeof config>) => {
+                const { sqliteDb } = cfg as any;
+
+                return {
+                    type: 'sqlite',
+                    database: sqliteDb,
+                    synchronize: true,
+                    autoLoadEntities: true,
+                };
+            },
+        }),
+    ],
+    providers: [],
+    exports: [],
+})
+
+export class DatabaseModule {}
+
+
+--- ARCHIVO: src/peliculas/peliculas.module.ts ---
+
+import { Module } from '@nestjs/common';
+import { PeliculasController } from './peliculas.controller';
+import { PeliculasService } from './peliculas.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Pelicula } from './entities/pelicula.entity';
+
+@Module({ 
+  imports: [TypeOrmModule.forFeature([Pelicula])],
+  controllers: [PeliculasController],
+  providers: [PeliculasService]
+})
+export class PeliculasModule {}
+
+
+--- ARCHIVO: src/peliculas/peliculas.controller.ts ---
+
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { PeliculasService } from './peliculas.service';
+import { CreatePeliculaDto } from './dtos/create-pelicula.dto';
+
+@Controller('peliculas')
+export class PeliculasController {
+
+    constructor(private readonly peliculasService: PeliculasService) {}
+
+    @Get()
+    findAll() {
+        return this.peliculasService.findAll();
+    }
+
+    @Post()
+    create(@Body() createPeliculaDto: CreatePeliculaDto) {
+        return this.peliculasService.create(createPeliculaDto);
+    }
+}
+
+
+--- ARCHIVO: src/peliculas/peliculas.service.ts ---
+
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Pelicula } from './entities/pelicula.entity';
+import { Repository } from 'typeorm/browser/repository/Repository.js';
+import { CreatePeliculaDto } from './dtos/create-pelicula.dto';
+
+@Injectable()
+export class PeliculasService {
+
+    constructor(
+        @InjectRepository(Pelicula)
+        private readonly peliculaRepo: Repository<Pelicula>,
+    ) { }
+
+    findAll() {
+        return this.peliculaRepo.find({order: {id: 'ASC'}});
+    }
+
+    async create(createPeliculaDto: CreatePeliculaDto) {
+        const nuevaPelicula = this.peliculaRepo.create(createPeliculaDto);
+        return await this.peliculaRepo.save(nuevaPelicula);
+    }
+}
+
+
+--- ARCHIVO: src/peliculas/entities/pelicula.entity.ts ---
+
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity({name: 'peliculas1'})
+export class Pelicula {
+    @PrimaryGeneratedColumn()
+    id: number;
+    
+    @Column({ type: 'varchar', length: 255, name: 'titulo' })
+    titulo: string;
+    
+    @Column({ type: 'int', name: 'anio' })
+    anio: number;
+    
+    @Column({ type: 'varchar', length: 255, name: 'descripcion', nullable: true })
+    descripcion?: string;
+    
+    @Column({ type: 'varchar', length: 255, name: 'director' })
+    director: string;
+    
+    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP', name: 'created_at' })
+    createdAt: Date;
+}
+
+
+--- ARCHIVO: src/peliculas/dtos/create-pelicula.dto.ts ---
+
+import {
+    IsString,
+    IsNumber,
+    IsOptional,
+    IsNotEmpty,
+    MaxLength,
+    Min,
+    Max,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class CreatePeliculaDto {
+    @IsString()
+    @IsNotEmpty({ message: 'El título es obligatorio' })
+    @MaxLength(100, { message: 'El titulo no puede superar los 100 caracteres' })
+    readonly titulo: string;
+
+    @Type(() => Number)
+    @IsNumber({}, { message: 'El año debe ser un número' })
+    @Min(1888, { message: 'El cine nació en 1888' })
+    @Max(new Date().getFullYear() + 1, {
+        message: 'El año no puede ser mayor que el actual + 1',
+    })
+    readonly anio: number;
+
+    @IsOptional()
+    @IsString()
+    readonly descripcion?: string;
+
+    @IsOptional()
+    @IsString()
+    readonly director?: string;
+}
+
+
+--- ARCHIVO: src/peliculas/dtos/update-pelicula.dto.ts ---
+
+import { PartialType } from "@nestjs/mapped-types";
+import { CreatePeliculaDto } from "./create-pelicula.dto";
+
+export class UpdatePeliculaDto extends PartialType(CreatePeliculaDto) {}
+
+
+--- ARCHIVO: .env (en la raíz del proyecto) ---
+
+DB_CLIENT=sqlite
+SQLITE_DB=./data/peliculas.sqlite
+
+API_KEY=DEV-KEY-1234
+API_KEY_PROD=PROD1212121SA
+NODE_ENV=dev
+PORT=3000
+
+
+========================================
+4. INSERTAR PELÍCULAS CON POST
+========================================
+
+========================================
+4. INSERTAR PELÍCULAS CON POST
+========================================
+
+IMPORTANTE: Usa Thunder Client, Postman o cualquier cliente HTTP
+
+Método: POST
+URL: http://localhost:3000/peliculas
+Headers: Content-Type: application/json
+
+--- POST 1: El Padrino ---
+{
+  "titulo": "El Padrino",
+  "anio": 1972,
+  "descripcion": "La historia de una familia mafiosa en Nueva York",
+  "director": "Francis Ford Coppola"
+}
+
+--- POST 2: Pulp Fiction ---
+{
+  "titulo": "Pulp Fiction",
+  "anio": 1994,
+  "descripcion": "Historias entrelazadas del mundo criminal",
+  "director": "Quentin Tarantino"
+}
+
+--- POST 3: El Caballero Oscuro ---
+{
+  "titulo": "El Caballero Oscuro",
+  "anio": 2008,
+  "descripcion": "Batman enfrenta al Joker en Gotham City",
+  "director": "Christopher Nolan"
+}
+
+--- POST 4: Inception ---
+{
+  "titulo": "Inception",
+  "anio": 2010,
+  "descripcion": "Un ladrón entra en los sueños para robar secretos",
+  "director": "Christopher Nolan"
+}
+
+--- POST 5: Matrix ---
+{
+  "titulo": "Matrix",
+  "anio": 1999,
+  "descripcion": "Un hacker descubre la verdad sobre la realidad",
+  "director": "Lana Wachowski"
+}
+
+--- POST 6: Forrest Gump ---
+{
+  "titulo": "Forrest Gump",
+  "anio": 1994,
+  "descripcion": "La vida extraordinaria de un hombre simple",
+  "director": "Robert Zemeckis"
+}
+
+--- POST 7: Gladiador ---
+{
+  "titulo": "Gladiador",
+  "anio": 2000,
+  "descripcion": "Un general romano convertido en gladiador",
+  "director": "Ridley Scott"
+}
+
+--- POST 8: Titanic ---
+{
+  "titulo": "Titanic",
+  "anio": 1997,
+  "descripcion": "Historia de amor en el famoso barco hundido",
+  "director": "James Cameron"
+}
+
+
+--- VERIFICAR PELÍCULAS (GET) ---
+
+Método: GET
+URL: http://localhost:3000/peliculas
+
+Debe devolver un array JSON con todas las películas insertadas.
+
+
+========================================
+5. COMANDOS PARA ARRANCAR EL BACKEND
+========================================
+
+# 1. Navegar al directorio del backend
+cd test-02-typeorm
+
+# 2. Instalar dependencias (solo la primera vez)
+npm install
+
+# 3. Arrancar el servidor en modo desarrollo
+npm run start:dev
+
+# El servidor arrancará en http://localhost:3000
+# TypeORM creará automáticamente:
+#   - Carpeta data/
+#   - Archivo peliculas.sqlite
+#   - Tabla peliculas1 con columnas: id, titulo, anio, descripcion, director, created_at
+
+
+========================================
+6. FRONTEND - REACT NATIVE
+========================================
+
+--- DEPENDENCIAS (YA DEBERÍAN ESTAR INSTALADAS) ---
+
+Si es un proyecto nuevo de Expo:
+npx create-expo-app@latest nombre-proyecto
+
+Si necesitas instalar dependencias adicionales:
+npm install
+
+
+--- ARCHIVO: app/index.tsx (o el archivo principal de tu app) ---
+
+import { useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
+
+//formatear cosas y meter elementos html
+
+type Pelicula={
+  name:string;
+  url:string;
+}
+
+//array de peliculas
+type PeliculaResponse={
+  results:Pelicula[];
+}
+
+
+
+export default function Index() {
+
+  //especie de getters and setters vitaminado directamente actualiza pantalla movil
+  const[peliculas,setPeliculas]=useState<Pelicula[]>([]);
+
+  //llamas al fetch, permite trabajar en segundo plano, maneja todo
+  useEffect(()=>{
+    const fetchPeliculas=async()=>{
+      try{
+        const response=await fetch("http://localhost:3000/peliculas");
+        const data: PeliculaResponse =await response.json();
+        console.log("Peliculas cargadas:",data.results);
+        setPeliculas(data.results);  //insertamos las peliculas en el estado
+      }catch(error){
+        console.error("Error al cargar Peliculas:",error);
+      }
+    };
+    fetchPeliculas();
+  },[]);
+
+  return (
+    <View
+      style={{   // componente visual tipo lista flatlist
+        flex: 1,
+        padding: 20,
+      }}
+    >
+      <Text style={{ fontSize: 22 , marginBottom: 10}}> Listado de Peliculas </Text>
+      
+      {/* flatlist */}
+
+      <FlatList
+        data={peliculas}
+        keyExtractor={(item) => item.name}   //extractor de nombres
+        renderItem={({ item }) => (
+          <Text style={{ fontSize: 18, padding: 6 }}>{item.name}</Text>
+        )}
+      />
+
+    </View>
+  );
+}
+
+
+--- COMANDOS PARA ARRANCAR EL FRONTEND ---
+
+# Opción 1: Si usas Expo
+npx expo start
+
+# Opción 2: Si configuraste npm run android
+npm run android
+
+# Opción 3: Metro bundler (React Native CLI)
+npm start
+
+
+--- IMPORTANTE PARA EL EXAMEN (SIN INTERNET) ---
+
+Si NO tienes internet en el examen:
+1. En Android físico/emulador, cambia "http://localhost:3000" por la IP de tu PC
+2. Encuentra tu IP local: ipconfig (Windows) o ifconfig (Mac/Linux)
+3. Ejemplo: "http://192.168.1.100:3000/peliculas"
+
+
+========================================
+3. GENERADORES DE NEST (SI NECESITAS)
+========================================
+
+--- Generar módulo ---
+nest generate module nombre-modulo
+nest g mo nombre-modulo
+
+--- Generar controlador ---
+nest generate controller nombre-controlador
+nest g co nombre-controlador
+
+--- Generar servicio ---
+nest generate service nombre-servicio
+nest g s nombre-servicio
+
+--- Generar recurso completo (módulo + controlador + servicio + entidad + DTOs) ---
+nest generate resource nombre-recurso
+nest g res nombre-recurso
+
+
+========================================
+4. ESTRUCTURA DE ARCHIVOS BACKEND
+========================================
+
+test-02-typeorm/
+├── node_modules/          (NO SUBIR A GIT)
+├── data/
+│   └── peliculas.sqlite   (Base de datos SQLite)
+├── src/
+│   ├── config/
+│   │   └── config.ts
+│   ├── database/
+│   │   └── database.module.ts
+│   ├── peliculas/
+│   │   ├── entities/
+│   │   │   └── pelicula.entity.ts
+│   │   ├── dtos/
+│   │   │   ├── create-pelicula.dto.ts
+│   │   │   └── update-pelicula.dto.ts
+│   │   ├── peliculas.controller.ts
+│   │   ├── peliculas.service.ts
+│   │   └── peliculas.module.ts
+│   ├── app.module.ts
+│   └── main.ts
+├── .env
+├── package.json
+├── tsconfig.json
+└── nest-cli.json
+
+
+========================================
+5. CHECKLIST PARA EL EXAMEN
+========================================
+
+BACKEND:
+☐ Copiar carpeta test-02-typeorm con node_modules incluido
+☐ Verificar que existe data/peliculas.sqlite con datos
+☐ Verificar que .env tiene SQLITE_DB=./data/peliculas.sqlite
+☐ Ejecutar: npm run start:dev
+☐ Probar GET http://localhost:3000/peliculas en Thunder Client
+
+FRONTEND:
+☐ Copiar carpeta del frontend con node_modules
+☐ Cambiar fetch URL a "http://[TU_IP_LOCAL]:3000/peliculas" si no hay internet
+☐ Ejecutar: npx expo start o npm run android
+☐ Verificar que se ven las películas en la app
+
+GIT (opcional):
+☐ git init
+☐ Crear .gitignore (node_modules/, .env)
+☐ git add .
+☐ git commit -m "Initial commit"
+☐ git remote add origin https://github.com/MarioCortes9/EXAMEN-ALBERTO-1.git
+☐ git push -u origin main
+
+
+========================================
+6. SOLUCIÓN DE PROBLEMAS COMUNES
+========================================
+
+ERROR: "Connection was refused by the server"
+→ El backend no está corriendo. Ejecuta: npm run start:dev
+
+ERROR: "Cannot find module sqlite3"
+→ Instala: npm install sqlite3 --legacy-peer-deps
+
+ERROR: "Table peliculas1 does not exist"
+→ Verifica que synchronize: true esté en database.module.ts
+→ Reinicia el servidor: Ctrl+C y npm run start:dev
+
+ERROR: Frontend no muestra películas
+→ Cambia localhost por tu IP local (192.168.x.x)
+→ Verifica en consola (F12) si hay errores de fetch
+
+ERROR: "fatal: not a git repository"
+→ Ejecuta: git init (en la raíz del proyecto)
+
+
+========================================
+FIN DE LAS INSTRUCCIONES
+========================================
+
+¡Buena suerte en el examen!
