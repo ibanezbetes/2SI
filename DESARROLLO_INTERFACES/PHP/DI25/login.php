@@ -10,7 +10,7 @@ $msj='';
 if($usuario=='' || $pass==''){
     $msj='Debes completar los campos.';
 }else{
-    // Comprobar credenciales (Hardcoded: usuario 'javier' y contraseña '123')
+    // Comprobar credenciales hardcodeadas: usuario 'javier' y contraseña '123')
     // En una aplicación real, esto se comprobaría contra la base de datos
     if($usuario=='javier' && $pass=='123'){
         // Guardar el usuario en la sesión y redirigir al index
