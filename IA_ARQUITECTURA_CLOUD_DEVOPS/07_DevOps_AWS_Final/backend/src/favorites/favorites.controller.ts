@@ -12,10 +12,11 @@ export class FavoritesController {
     private readonly usersService: UsersService,
   ) {}
 
-  @Get('users/:id/favorites')
-  @ApiOperation({ summary: 'Get favorites for a user' })
-  findAll(@Param('id') id: string) {
-    return this.favoritesService.findAll(id);
+  @Get('favorites')
+  @ApiOperation({ summary: 'Get favorites for the current (demo) user' })
+  async findAll() {
+    const user = await this.usersService.findDemoUser();
+    return this.favoritesService.findAll(user.id);
   }
 
   @Post('favorites/:itemId')

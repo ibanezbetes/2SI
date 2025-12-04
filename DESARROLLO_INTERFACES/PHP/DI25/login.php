@@ -12,7 +12,7 @@ if($usuario=='' || $pass==''){
 }else{
     // Comprobar credenciales hardcodeadas: usuario 'javier' y contraseña '123')
     // En una aplicación real, esto se comprobaría contra la base de datos
-    if($usuario=='javier' && $pass=='123'){
+    if($usuario=='admin' && $pass=='123'){
         // Guardar el usuario en la sesión y redirigir al index
         $_SESSION['login']=$usuario;
         header('Location: index.php'); 
@@ -37,12 +37,12 @@ if($usuario=='' || $pass==''){
 
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" 
-                    name="usuario" id="usuario" placeholder="a">
+                    name="usuario" id="usuario" placeholder=" ">
                 <label for="usuario">Usuario</label>
             </div>
             <div class="form-floating mb-3">
                 <input type="password" class="form-control" 
-                    name="pass" id="pass" placeholder="a">
+                    name="pass" id="pass" placeholder=" ">
                 <label for="pass">Contraseña</label>
             </div>
 

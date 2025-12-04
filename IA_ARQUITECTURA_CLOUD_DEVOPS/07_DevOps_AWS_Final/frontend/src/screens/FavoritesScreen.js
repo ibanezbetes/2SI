@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet, Text, ActivityIndicator } from 'react-nativ
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../services/api';
 import ItemCard from '../components/ItemCard';
+import { theme } from '../theme/theme';
 
 const FavoritesScreen = ({ navigation }) => {
   const [favorites, setFavorites] = useState([]);
@@ -12,9 +13,7 @@ const FavoritesScreen = ({ navigation }) => {
   const fetchFavorites = async () => {
     try {
       setLoading(true);
-      // TODO: Get real userId. Using demo user.
-      const demoUserId = 'demo-user-id';
-      const response = await api.get(`/users/${demoUserId}/favorites`);
+      const response = await api.get('/favorites');
       setFavorites(response.data);
       setError(null);
     } catch (err) {
@@ -45,7 +44,7 @@ const FavoritesScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -65,7 +64,7 @@ const FavoritesScreen = ({ navigation }) => {
         )}
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text>No tienes favoritos guardados</Text>
+            <Text style={styles.emptyText}>No tienes favoritos guardados</Text>
           </View>
         }
       />
@@ -76,13 +75,18 @@ const FavoritesScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: theme.spacing.m,
+    backgroundColor: theme.colors.background,
+  },
+  emptyText: {
+    color: theme.colors.textSecondary,
+    fontSize: 16,
   },
 });
 

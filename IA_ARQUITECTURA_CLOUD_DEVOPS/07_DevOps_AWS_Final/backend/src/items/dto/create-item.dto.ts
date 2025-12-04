@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsUrl, MinLength, Min, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsUrl, MinLength, Min, IsNotEmpty, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateItemDto {
@@ -23,6 +23,9 @@ export class CreateItemDto {
 
   @ApiProperty()
   @IsUrl()
+  @Matches(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/, {
+    message: 'videoUrl must be a valid YouTube URL',
+  })
   videoUrl: string;
 
   @ApiProperty()

@@ -4,18 +4,26 @@ import { Repository } from 'typeorm';
 import { Item } from './entities/item.entity';
 import { CreateItemDto } from './dto/create-item.dto';
 import { QueryItemsDto } from './dto/query-items.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class ItemsService {
   constructor(
     @InjectRepository(Item)
     private itemsRepository: Repository<Item>,
+    private usersService: UsersService,
   ) {}
 
   async create(createItemDto: CreateItemDto, userId?: string) {
+    let finalUserId = userId;
+    if (!finalUserId) {
+      const demoUser = await this.usersService.findDemoUser();
+      finalUserId = demoUser.id;
+    }
+
     const item = this.itemsRepository.create({
       ...createItemDto,
-      userId: userId || '00000000-0000-0000-0000-000000000000',
+      userId: finalUserId,
     });
     return this.itemsRepository.save(item);
   }

@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList, StyleSheet, ActivityIndicator, Text, RefreshControl, Button } from 'react-native';
+import { View, FlatList, StyleSheet, ActivityIndicator, Text, RefreshControl, Button, StatusBar } from 'react-native';
 import api from '../services/api';
 import ItemCard from '../components/ItemCard';
 import { useFocusEffect } from '@react-navigation/native';
+import { theme } from '../theme/theme';
 
 const HomeScreen = ({ navigation, route }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [favorites, setFavorites] = useState(new Set());
   const [filters, setFilters] = useState({});
 
   useEffect(() => {
@@ -21,8 +23,19 @@ const HomeScreen = ({ navigation, route }) => {
     try {
       setLoading(true);
       const params = { ...filters };
-      const response = await api.get('/items', { params });
-      setItems(response.data.data);
+      
+      // Fetch items and favorites in parallel
+      const [itemsResponse, favoritesResponse] = await Promise.all([
+        api.get('/items', { params }),
+        api.get('/favorites')
+      ]);
+
+      setItems(itemsResponse.data.data);
+      
+      // Create a Set of favorite item IDs for efficient lookup
+      const favoriteIds = new Set(favoritesResponse.data.map(fav => fav.item.id));
+      setFavorites(favoriteIds);
+      
       setError(null);
     } catch (err) {
       setError('Error al cargar los datos');
@@ -45,14 +58,32 @@ const HomeScreen = ({ navigation, route }) => {
   };
 
   const toggleFavorite = async (item) => {
-    // TODO: Implement favorite logic
-    console.log('Toggle favorite', item.id);
+    try {
+      if (favorites.has(item.id)) {
+        await api.delete(`/favorites/${item.id}`);
+        setFavorites(prev => {
+          const next = new Set(prev);
+          next.delete(item.id);
+          return next;
+        });
+      } else {
+        await api.post(`/favorites/${item.id}`);
+        setFavorites(prev => {
+          const next = new Set(prev);
+          next.add(item.id);
+          return next;
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling favorite', error);
+      Alert.alert('Error', 'No se pudo actualizar favoritos');
+    }
   };
 
   if (loading && !refreshing) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -60,19 +91,20 @@ const HomeScreen = ({ navigation, route }) => {
   if (error) {
     return (
       <View style={styles.center}>
-        <Text>{error}</Text>
-        <Button title="Reintentar" onPress={fetchItems} />
+        <Text style={styles.errorText}>{error}</Text>
+        <Button title="Reintentar" onPress={fetchItems} color={theme.colors.primary} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
       <View style={styles.header}>
-        <Button title="Filtros" onPress={() => navigation.navigate('Filters')} />
-        <Button title="Publicar" onPress={() => navigation.navigate('CreateItem')} />
-        <Button title="Favoritos" onPress={() => navigation.navigate('Favorites')} />
-        <Button title="Perfil" onPress={() => navigation.navigate('Profile')} />
+        <Button title="Filtros" onPress={() => navigation.navigate('Filters')} color={theme.colors.secondary} />
+        <Button title="Publicar" onPress={() => navigation.navigate('CreateItem')} color={theme.colors.primary} />
+        <Button title="Favoritos" onPress={() => navigation.navigate('Favorites')} color={theme.colors.secondary} />
+        <Button title="Perfil" onPress={() => navigation.navigate('Profile')} color={theme.colors.secondary} />
       </View>
       <FlatList
         data={items}
@@ -82,7 +114,7 @@ const HomeScreen = ({ navigation, route }) => {
             item={item}
             onPress={() => navigation.navigate('Detail', { itemId: item.id })}
             onFavoritePress={() => toggleFavorite(item)}
-            isFavorite={false} // TODO: Check if favorite
+            isFavorite={favorites.has(item.id)}
           />
         )}
         refreshControl={
@@ -90,7 +122,7 @@ const HomeScreen = ({ navigation, route }) => {
         }
         ListEmptyComponent={
           <View style={styles.center}>
-            <Text>No hay publicaciones disponibles</Text>
+            <Text style={styles.emptyText}>No hay publicaciones disponibles</Text>
           </View>
         }
       />
@@ -101,7 +133,7 @@ const HomeScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   center: {
     flex: 1,
@@ -111,8 +143,19 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 10,
-    backgroundColor: '#fff',
+    padding: theme.spacing.m,
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  errorText: {
+    color: theme.colors.error,
+    marginBottom: theme.spacing.m,
+    fontSize: 16,
+  },
+  emptyText: {
+    color: theme.colors.textSecondary,
+    fontSize: 16,
   },
 });
 

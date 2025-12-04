@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { theme } from '../theme/theme';
 
 const ProfileScreen = () => {
   const user = {
@@ -35,39 +36,45 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   header: {
     alignItems: 'center',
-    padding: 30,
-    backgroundColor: '#f9f9f9',
+    padding: theme.spacing.xl,
+    backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    marginBottom: 15,
+    marginBottom: theme.spacing.m,
+    borderWidth: 2,
+    borderColor: theme.colors.primary,
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: theme.spacing.xs,
+    color: theme.colors.text,
   },
   specialty: {
     fontSize: 18,
-    color: '#2ecc71',
-    marginBottom: 5,
+    color: theme.colors.primary,
+    marginBottom: theme.spacing.xs,
   },
   email: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: theme.colors.textSecondary,
   },
   stats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 20,
+    padding: theme.spacing.l,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: theme.colors.border,
+    marginTop: theme.spacing.m,
   },
   statItem: {
     alignItems: 'center',
@@ -75,10 +82,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: theme.colors.text,
   },
   statLabel: {
     fontSize: 14,
-    color: '#7f8c8d',
+    color: theme.colors.textSecondary,
   },
 });
 

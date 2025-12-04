@@ -90,6 +90,16 @@ class CUsuarios extends Controlador{
     // Eliminado lógico de un usuario (poner activo='N')
     public function eliminarUsuario($datos=array()){
         extract($datos);
+        
+        // Verificar si es admin
+        $sqlCheck = "SELECT login FROM usuarios WHERE idUsuario = $idUsuario";
+        $usuario = $this->dao->consultar($sqlCheck);
+        
+        if (!empty($usuario) && $usuario[0]['login'] === 'admin') {
+            echo '<div class="alert alert-danger">No se puede eliminar al administrador principal</div>';
+            return;
+        }
+
         $sql = "UPDATE usuarios SET activo='N' WHERE idUsuario=$idUsuario";
         $res = $this->dao->actualizar($sql);
         echo $res > 0 ? '<div class="alert alert-success">Usuario eliminado exitosamente</div>' : '<div class="alert alert-danger">Error al eliminar</div>';

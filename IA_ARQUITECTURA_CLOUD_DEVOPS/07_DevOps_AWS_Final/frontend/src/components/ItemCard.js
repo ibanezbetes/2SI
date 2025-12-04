@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { theme } from '../theme/theme';
 
 const ItemCard = ({ item, onPress, onFavoritePress, isFavorite }) => {
   const imageUrl = item.thumbnailKey ? `https://test-bucket.s3.amazonaws.com/${item.thumbnailKey}` : 'https://via.placeholder.com/150';
@@ -21,53 +22,56 @@ const ItemCard = ({ item, onPress, onFavoritePress, isFavorite }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: 'white',
-    borderRadius: 8,
-    marginVertical: 8,
-    marginHorizontal: 16,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.medium,
+    marginVertical: theme.spacing.s,
+    marginHorizontal: theme.spacing.m,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 5,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   image: {
     width: '100%',
-    height: 150,
+    height: 180,
   },
   content: {
-    padding: 12,
+    padding: theme.spacing.m,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: theme.colors.text,
   },
   price: {
-    fontSize: 14,
-    color: '#2ecc71',
+    fontSize: 16,
+    color: theme.colors.primary,
     fontWeight: 'bold',
   },
   category: {
     fontSize: 12,
-    color: '#7f8c8d',
+    color: theme.colors.textSecondary,
     marginTop: 4,
   },
   favoriteButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: 20,
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
   favoriteText: {
-    fontSize: 20,
-    color: '#f1c40f',
+    fontSize: 24,
+    color: theme.colors.warning,
   },
 });
 

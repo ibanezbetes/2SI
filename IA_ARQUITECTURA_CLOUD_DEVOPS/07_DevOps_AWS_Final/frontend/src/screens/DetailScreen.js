@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Button } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import api from '../services/api';
+import { theme } from '../theme/theme';
 
 const DetailScreen = ({ route, navigation }) => {
   const { itemId } = route.params;
@@ -36,7 +37,7 @@ const DetailScreen = ({ route, navigation }) => {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -44,7 +45,9 @@ const DetailScreen = ({ route, navigation }) => {
   if (error || !item) {
     return (
       <View style={styles.center}>
-        <Text>{error || 'Item no encontrado'}</Text>
+      <View style={styles.center}>
+        <Text style={styles.errorText}>{error || 'Item no encontrado'}</Text>
+      </View>
       </View>
     );
   }
@@ -80,51 +83,60 @@ const DetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.background,
   },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: theme.colors.background,
   },
   image: {
     width: '100%',
-    height: 250,
+    height: 300,
     resizeMode: 'cover',
   },
   content: {
-    padding: 20,
+    padding: theme.spacing.l,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 8,
+    fontSize: theme.typography.h1.fontSize,
+    fontWeight: theme.typography.h1.fontWeight,
+    marginBottom: theme.spacing.s,
+    color: theme.colors.text,
   },
   price: {
-    fontSize: 20,
-    color: '#2ecc71',
+    fontSize: 24,
+    color: theme.colors.primary,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: theme.spacing.s,
   },
   category: {
     fontSize: 16,
-    color: '#7f8c8d',
-    marginBottom: 16,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.m,
     fontStyle: 'italic',
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: '#34495e',
-    marginBottom: 24,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.l,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    fontSize: theme.typography.h2.fontSize,
+    fontWeight: theme.typography.h2.fontWeight,
+    marginBottom: theme.spacing.m,
+    color: theme.colors.text,
   },
   videoContainer: {
-    marginTop: 10,
+    marginTop: theme.spacing.m,
+    borderRadius: theme.borderRadius.medium,
+    overflow: 'hidden',
+  },
+  errorText: {
+    color: theme.colors.error,
+    fontSize: 18,
   },
 });
 
