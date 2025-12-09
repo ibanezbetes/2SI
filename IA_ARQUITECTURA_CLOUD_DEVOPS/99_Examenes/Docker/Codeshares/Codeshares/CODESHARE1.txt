@@ -1,0 +1,79 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
+# ⚠️ Aquí van tus credenciales del Learner Lab
+provider "aws" {
+  region     = "us-east-1"
+  access_key = "ASIAV3JEKDX56TQGYFKN"     # Pega aquí tu AWS_ACCESS_KEY_ID
+  secret_key = "OykGBs3v3WP9XmnSCqhNxO3C91SzKOBsCGJtbrVi"     # Pega aquí tu AWS_SECRET_ACCESS_KEY
+  token      = "IQoJb3JpZ2luX2VjEEEaCXVzLXdlc3QtMiJHMEUCIQDMG1MXqvpmWvOwAXa9zhbmIOwI+jlBqghibi1c5rBzVQIgLg8hJ/MoOcMNfemv820CsV46+BI+OSfmo7G77wHFRUAqtwIIuv//////////ARAAGgw0MDIxOTI0NzM1OTUiDOvycO4CS9y1KqI6fCqLAls/ShzBKLYnfs7acq4faOBIyIgW9xQesGCgINsqKseyoRy53d+Jq/vjWQX64GzBeuePnk2QHTraqY/fCNqHU2UFw81XMr9Bg7EcYY5YxStPiMQWKwHQjj+9cWuYcQ4W2+3997KYynuOiGRNPDZK9F88PBWP50tt8JvTeSp4ZE/hyiBF165Hm3aiFKK5h2yA4u1nFniKu2Kh9K/ePwjcgsAGHkuB68Kh3ItoRsB9BdNi7XaTi4l2fFyNrjBxvdV44ebK/lKv9WOCPLEV+1o/20PxbqGzEcNycSX2nWeqDfUUUX8av0ItAc5A/IKfCyYSYpk3FJZy7brvzlj88Ds3r50aOapjPe4ti4Kh6TD+h6/GBjqdAZSd3AFcxoTmlVTQCxHiYe4dV/ysUiJb6TyRGycaH2wIUDW+KTu64nv/13cEsB5fCBgXM6mgl7MuxVroLt6jBgiWwxNvcaf+OIhF3sINEty1EseeCo2dWPH9j+dTS6sGKG/8kKzFyRH41qYL5YWgJHIGbONFQPFeMekGayxX+yCzDJYyDN14A8KpDmsuIN/Md0xY/DcRLFnQ834BUu8="     # Pega aquí tu AWS_SESSION_TOKEN (es largo)
+}
+
+
+# Security Group para permitir SSH (22) y HTTP (80)
+resource "aws_security_group" "terraform_sg" {
+  name        = "terraform-sg"
+  description = "Permitir SSH y HTTP"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "terraform-sg"
+  }
+}
+
+# Instancia EC2 Ubuntu
+resource "aws_instance" "example" {
+  ami                         = "ami-011899242bb902164" # Ubuntu 20.04 en us-east-1
+  instance_type               = "t2.micro"
+  key_name                    = "terraform-pokeapi"               # Nombre del par de claves del Learner Lab
+  vpc_security_group_ids      = [aws_security_group.terraform_sg.id]
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "terraform-academy-test"
+  }
+
+  # Opcional: instala Nginx al arrancar
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update -y
+              apt-get install -y nginx
+              systemctl enable nginx
+              systemctl start nginx
+              echo "Hola desde Terraform + AWS Academy" > /var/www/html/index.nginx-debian.html
+              EOF
+}
+
+# Mostrar IP pública al terminar
+output "public_ip" {
+  value = aws_instance.example.public_ip
+}
+

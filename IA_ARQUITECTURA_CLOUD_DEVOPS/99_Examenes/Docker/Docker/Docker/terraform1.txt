@@ -1,0 +1,194 @@
+========================================================================
+GUÍA PASO A PASO: DESPLEGAR INFRAESTRUCTURA CON TERRAFORM Y AWS
+(Diseñada para AWS Academy / Learner Lab)
+========================================================================
+
+--- FASE 0: PREPARATIVOS (ANTES DE EMPEZAR) ---
+
+1. INSTALAR TERRAFORM
+   - Si estás en Windows: Descárgalo de https://developer.hashicorp.com/terraform/install 
+     (Ojo: Tienes que descomprimir el .zip y poner el archivo terraform.exe en una carpeta accesible, o agregarlo al PATH de Windows).
+   - Para comprobar que funciona, abre una terminal (CMD o PowerShell) y escribe:
+     terraform -version
+
+2. INSTALAR UN EDITOR DE CÓDIGO
+   - Recomendado: VS Code (Visual Studio Code). Ayuda a ver los colores del código.
+
+3. OBTENER TUS CREDENCIALES DE AWS ACADEMY
+   - Entra a tu curso en Canvas/AWS Academy.
+   - Ve a "Modules" -> "Learner Lab".
+   - Inicia el laboratorio (Start Lab). Espera a que el punto esté verde (Ready).
+   - Haz clic en "AWS Details".
+   - Haz clic en "Show" junto a "AWS CLI".
+   - Copia las tres líneas que aparecen (aws_access_key_id, aws_secret_access_key, aws_session_token). Las necesitarás en el PASO 3.
+
+------------------------------------------------------------------------
+
+--- FASE 1: CREAR EL PROYECTO ---
+
+1. Crea una carpeta nueva en tu escritorio (ej: "ProyectoTerraform").
+2. Abre tu editor de código (VS Code) y abre esa carpeta.
+3. Crea un archivo nuevo dentro de la carpeta llamado exactamente: main.tf
+
+------------------------------------------------------------------------
+
+--- FASE 2: EL CÓDIGO (COPIAR Y PEGAR) ---
+
+Copia EXACTAMENTE el siguiente contenido dentro de tu archivo main.tf.
+No te preocupes por entenderlo todo ahora, este código une todas las piezas del temario.
+
+###### INICIO DEL ARCHIVO main.tf ######
+
+# 1. Configuración de Terraform y Proveedores
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
+# 2. Configuración de la conexión a AWS
+# IMPORTANTE: Aquí tendrás que pegar tus claves en el siguiente paso.
+provider "aws" {
+  region     = "us-east-1"
+  access_key = "PON_AQUI_TU_ACCESS_KEY"
+  secret_key = "PON_AQUI_TU_SECRET_KEY"
+  token      = "PON_AQUI_TU_TOKEN_LARGO"
+}
+
+# 3. Security Group (Firewall)
+# Abre puertos 22 (SSH) y 80 (Web)
+resource "aws_security_group" "terraform_sg" {
+  name        = "terraform-sg"
+  description = "Permitir SSH y HTTP"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "terraform-sg"
+  }
+}
+
+# 4. Instancia EC2 (Servidor)
+resource "aws_instance" "example" {
+  ami                         = "ami-011899242bb902164" # Ubuntu 20.04 en us-east-1
+  instance_type               = "t2.micro"
+  key_name                    = "labsuser" # Clave obligatoria en Academy
+  vpc_security_group_ids      = [aws_security_group.terraform_sg.id]
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "terraform-academy-test"
+  }
+
+  # Script de arranque (Instala Nginx y crea la web)
+  user_data = <<-EOF
+    #!/bin/bash
+    apt-get update -y
+    apt-get install -y nginx
+    systemctl enable nginx
+    systemctl start nginx
+    echo "<h1>Hola! Pagina creada con Terraform</h1>" > /var/www/html/index.nginx-debian.html
+  EOF
+}
+
+# 5. Output (Resultado final)
+output "public_ip" {
+  description = "La IP publica del servidor web"
+  value       = aws_instance.example.public_ip
+}
+
+###### FIN DEL ARCHIVO main.tf ######
+
+------------------------------------------------------------------------
+
+--- FASE 3: CONFIGURAR CREDENCIALES ---
+
+1. Vuelve a tu archivo main.tf.
+2. Busca el bloque `provider "aws"`.
+3. Borra el texto "PON_AQUI_TU_..." y pega tus credenciales reales que copiaste de AWS Academy.
+   - access_key: Suele empezar por ASIA...
+   - secret_key: Es una cadena larga de letras y números.
+   - token: Es MUY largo. Asegúrate de copiarlo entero.
+
+   ¡OJO! Las comillas "" deben quedarse. Ejemplo: access_key = "ASIAXK..."
+
+4. Guarda el archivo (Ctrl + S).
+
+------------------------------------------------------------------------
+
+--- FASE 4: EJECUTAR (LA MAGIA) ---
+
+1. Abre la terminal dentro de VS Code (Terminal -> New Terminal) o usa CMD navegando a tu carpeta.
+2. Ejecuta los siguientes comandos en orden:
+
+   COMANDO A:
+   terraform init
+   (Esperas a que diga "Terraform has been successfully initialized!" en verde).
+
+   COMANDO B:
+   terraform plan
+   (Te mostrará una lista de cosas que va a crear con signos "+". Si da error aquí, revisa si copiaste bien las claves).
+
+   COMANDO C:
+   terraform apply --auto-approve
+   (Empezará a crear la máquina. Tardará unos 30-60 segundos).
+
+------------------------------------------------------------------------
+
+--- FASE 5: COMPROBAR EL RESULTADO ---
+
+1. Cuando el comando anterior termine, verás al final algo como:
+   Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+   
+   Outputs:
+   public_ip = "54.210.12.34"  (Tu número será distinto)
+
+2. Copia esa IP (sin las comillas).
+3. Abre Chrome o tu navegador.
+4. Pega la IP en la barra de direcciones y pulsa Enter.
+5. Deberías ver: "Hola! Pagina creada con Terraform".
+
+------------------------------------------------------------------------
+
+--- FASE 6: LIMPIEZA (MUY IMPORTANTE) ---
+
+Para no gastar el crédito de AWS Academy o dejar cosas basura:
+
+1. En la misma terminal, ejecuta:
+   terraform destroy --auto-approve
+
+2. Espera a que diga "Destroy complete!".
+
+------------------------------------------------------------------------
+SOLUCIÓN DE PROBLEMAS COMUNES:
+
+- Error "InvalidClientTokenId" o "ExpiredToken": 
+  Las claves de AWS Academy caducan cada pocas horas. Si te pasa esto, ve a la web de Academy, copia las claves nuevas y actualiza tu archivo main.tf.
+
+- Error "AMI not found":
+  La AMI (ami-0118...) es específica de la región us-east-1. Asegúrate de que en provider ponga region = "us-east-1".
+========================================================================

@@ -1,0 +1,163 @@
+========================================================================
+GUÍA PRÁCTICA 4: CONEXIÓN API + BASE DE DATOS (DOCKER)
+========================================================================
+
+Objetivo: Crear una API NestJS que se conecte a una base de datos PostgreSQL, todo orquestado con Docker.
+
+--- FASE 1: CREAR EL PROYECTO NESTJS (En tu ordenador) ---
+
+1. Abre una terminal (CMD o PowerShell) en tu carpeta de proyectos.
+2. Ejecuta el comando para crear el esqueleto de la aplicación:
+   npx @nestjs/cli new nest-data-bridge
+
+   (Te preguntará qué gestor de paquetes usar. Elige "npm" y pulsa Enter. Espera a que instale todo).
+
+3. Entra en la carpeta creada:
+   cd nest-data-bridge
+
+4. Instala las librerías para conectar con la base de datos:
+   npm install @nestjs/typeorm typeorm pg
+
+5. Abre VS Code en esta carpeta:
+   code .
+
+------------------------------------------------------------------------
+
+--- FASE 2: CONFIGURACIÓN DE SECRETOS (.env) ---
+
+1. En la raíz del proyecto (donde está package.json), crea un archivo llamado: .env
+2. Pega este contenido (son las credenciales que compartirán la API y la BD):
+
+POSTGRES_USER=nestuser
+POSTGRES_PASSWORD=nestpass
+POSTGRES_DB=nestdb
+DB_HOST=db
+DB_PORT=5432
+APP_PORT=3000
+
+------------------------------------------------------------------------
+
+--- FASE 3: CONFIGURAR EL CÓDIGO (NestJS) ---
+
+Vamos a decirle a NestJS que lea el archivo .env y se conecte.
+
+1. Abre el archivo: src/app.module.ts
+2. BORRA todo el contenido y PEGA esto:
+
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,      // Lee 'db' del .env
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      autoLoadEntities: true,
+      synchronize: true, // ¡Cuidado! Esto crea tablas automáticamente (solo dev)
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+
+3. (Opcional) Vamos a crear el endpoint de prueba.
+   Abre: src/app.controller.ts
+   Sustituye el método "getHello" o añade este nuevo dentro de la clase:
+
+   import { Controller, Get } from '@nestjs/common';
+   // import { DataSource } from 'typeorm'; // Descomentar si quieres inyectar DataSource real
+
+   @Controller()
+   export class AppController {
+     @Get('db-check')
+     checkConnection() {
+       // Si llegamos aquí y la app no ha explotado, es que TypeOrm conectó bien al inicio.
+       return { connected: true, message: 'Conexión a PostgreSQL exitosa' };
+     }
+   }
+
+------------------------------------------------------------------------
+
+--- FASE 4: DOCKERIZAR LA APLICACIÓN ---
+
+1. En la raíz del proyecto, crea un archivo llamado: Dockerfile (sin extensión).
+   Contenido:
+
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "run", "start:prod"]
+
+2. En la raíz del proyecto, crea el archivo: docker-compose.yml
+   Contenido:
+
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    env_file: .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    restart: always
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT}:5432"
+
+volumes:
+  pgdata:
+
+------------------------------------------------------------------------
+
+--- FASE 5: EJECUCIÓN ---
+
+1. Asegúrate de que Docker Desktop está abierto.
+2. En la terminal de VS Code, ejecuta:
+
+   docker compose up --build
+
+3. Espera un poco. La primera vez tarda porque descarga PostgreSQL y compila tu App.
+   Si todo va bien, verás logs de colorines. Busca uno que diga:
+   "Nest application successfully started".
+
+------------------------------------------------------------------------
+
+--- FASE 6: VALIDACIÓN ---
+
+1. Abre otra terminal (o tu navegador).
+2. Entra en: http://localhost:3000/db-check
+   Deberías ver: { "connected": true, ... }
+
+3. COMPROBACIÓN DE PERSISTENCIA (Para nota):
+   a. Cancela el proceso (Ctrl + C) o haz "docker compose down".
+   b. Vuelve a levantarlo ("docker compose up").
+   c. Los datos siguen ahí gracias al volumen "pgdata".
+
+------------------------------------------------------------------------
+
+--- FASE 7: LIMPIEZA TOTAL ---
+
+Si quieres borrar todo, INCLUYENDO los datos de la base de datos (el volumen):
+
+docker compose down -v
+
+(La bandera -v significa "borra también los volúmenes").
+========================================================================

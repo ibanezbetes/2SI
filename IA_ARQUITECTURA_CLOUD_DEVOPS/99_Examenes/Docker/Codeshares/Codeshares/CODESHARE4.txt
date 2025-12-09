@@ -1,0 +1,100 @@
+2. Crear el archivo docker-compose.yml en la raíz del proyecto con el siguiente contenido:
+/*HTML*/
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Static Web + NestJS API</title>
+</head>
+<body>
+    <h1>Bienvenido a la Web Estática</h1>
+    <p>Esta página está servida por Nginx (contenedor <b>web</b>).</p>
+
+    <h2>Probar API NestJS</h2>
+    <button onclick="test()">Llamar a /</button>
+
+    <pre id="output"></pre>
+
+    <script>
+        async function test() {
+            const res = await fetch("http://localhost:3000");
+            const text = await res.text();
+            document.getElementById("output").innerText = text;
+        }
+    </script>
+</body>
+</html>
+//
+Dockerfile
+//
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["npm", "run", "start:dev"]
+
+//
+version: "3.9"
+services:
+  api:
+    build: .
+    container_name: nest-api
+    ports:
+      - "3000:3000"
+    command: npm run start:dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  web:
+    image: nginx:alpine
+    container_name: static-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+
+Explicación:
+
+El servicio "api" usa tu Dockerfile y ejecuta Nest en modo desarrollo.
+
+El servicio "web" usa Nginx para servir la web estática.
+
+Ambos servicios están en la misma red interna.
+
+La instrucción depends_on garantiza que la API arranque antes de la web.
+
+
+
+
+Levantar y probar el entorno
+
+Levantar el entorno completo
+
+docker compose up --build
+
+Verás que se inician ambos servicios:Container nest-api StartedContainer static-web Started
+
+Probar en el navegador
+
+API en http://localhost:3000/products
+
+Web en http://localhost:8080
+
+Ver y analizar el entorno
+
+docker compose ps
+docker compose logs api
+docker exec -it static-web sh
+
+También puedes inspeccionar redes:
+
+docker network ls
+docker network inspect nombre_del_proyecto_default
+
+Parar y limpiar el entorno
+
+docker compose down

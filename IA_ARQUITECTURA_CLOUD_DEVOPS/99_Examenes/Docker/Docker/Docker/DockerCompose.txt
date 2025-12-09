@@ -1,0 +1,148 @@
+========================================================================
+GUÍA PRÁCTICA 3: DOCKER COMPOSE (FRONTEND + BACKEND)
+========================================================================
+
+Objetivo: Levantar dos servidores (Web y API) con un solo comando.
+
+--- FASE 1: PREPARAR LAS CARPETAS ---
+
+1. Crea una carpeta nueva en tu escritorio llamada: PracticaCompose
+2. Abre esa carpeta con VS Code.
+
+------------------------------------------------------------------------
+
+--- FASE 2: CREAR EL FRONTEND (La Web) ---
+
+1. Dentro de "PracticaCompose", crea una carpeta llamada: web
+2. Dentro de la carpeta "web", crea un archivo: index.html
+3. Pega este contenido:
+
+<!DOCTYPE html>
+<html>
+<head>
+ <title>Mi entorno Compose</title>
+ <style>body { font-family: sans-serif; text-align: center; padding: 50px; }</style>
+</head>
+<body>
+ <h1>API Nest (Simulada) + Nginx Web</h1>
+ <p>Esta web está en el puerto 8080.</p>
+ <p>La API está escuchando en <a href="http://localhost:3000" target="_blank">/products (Puerto 3000)</a></p>
+</body>
+</html>
+
+------------------------------------------------------------------------
+
+--- FASE 3: SIMULAR EL BACKEND (La API) ---
+
+*Nota: Normalmente aquí tendrías todo tu código de NestJS. Como no lo tenemos, vamos a crear una "API Falsa" rápida para que el ejercicio funcione.*
+
+1. Vuelve a la raíz (carpeta PracticaCompose).
+2. Crea un archivo llamado: package.json
+   Contenido:
+   {
+     "name": "api-simulada",
+     "scripts": {
+       "start:dev": "node server.js"
+     },
+     "dependencies": {
+       "express": "^4.17.1"
+     }
+   }
+
+3. Crea un archivo llamado: server.js
+   Contenido:
+   const http = require('http');
+   const server = http.createServer((req, res) => {
+     res.writeHead(200, { 'Content-Type': 'text/plain' });
+     res.end('Hola! Soy la API respondiendo desde el puerto 3000');
+   });
+   server.listen(3000, () => {
+     console.log('API escuchando en puerto 3000');
+   });
+
+4. Crea un archivo llamado: Dockerfile  (Sin extensión .txt ni nada)
+   Contenido:
+   FROM node:14-alpine
+   WORKDIR /app
+   COPY package.json .
+   # Instalamos express solo para simular dependencias
+   RUN npm install 
+   COPY . .
+   EXPOSE 3000
+   CMD ["npm", "run", "start:dev"]
+
+------------------------------------------------------------------------
+
+--- FASE 4: EL DIRECTOR DE ORQUESTA (DOCKER COMPOSE) ---
+
+1. En la raíz (PracticaCompose), crea el archivo más importante: docker-compose.yml
+2. Pega el contenido del temario:
+
+version: "3.9"
+services:
+  api:
+    build: .
+    container_name: nest-api
+    ports:
+      - "3000:3000"
+    command: npm run start:dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  web:
+    image: nginx:alpine
+    container_name: static-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    depends_on:
+      - api
+
+------------------------------------------------------------------------
+
+--- FASE 5: EJECUTAR TODO ---
+
+1. Abre la terminal en VS Code (Asegúrate de estar en la carpeta PracticaCompose).
+2. Ejecuta el comando mágico:
+
+   docker compose up --build
+
+   (Si tienes una versión antigua de Docker, usa "docker-compose up --build" con guion).
+
+3. Verás muchas letras de colores. 
+   - "nest-api" dirá: API escuchando en puerto 3000.
+   - "static-web" dirá: Configuration complete... ready for start up.
+
+------------------------------------------------------------------------
+
+--- FASE 6: COMPROBAR ---
+
+1. Abre tu navegador.
+2. Entra en: http://localhost:8080
+   -> Deberías ver tu HTML "Mi entorno Compose".
+   
+3. Entra en: http://localhost:3000
+   -> Deberías ver el mensaje "Hola! Soy la API..."
+
+¡Has levantado dos servidores conectados con un solo comando!
+
+------------------------------------------------------------------------
+
+--- FASE 7: COMANDOS ÚTILES Y LIMPIEZA ---
+
+Para apagarlo todo, tienes dos opciones:
+
+Opción A (Si tienes la terminal bloqueada con los logs):
+Pulsa Ctrl + C.
+
+Opción B (Si quieres correrlo en segundo plano):
+1. Ejecuta: docker compose up -d
+   (La terminal queda libre).
+2. Para ver qué pasa: docker compose ps
+3. Para ver logs: docker compose logs -f
+4. Para APAGAR y BORRAR todo:
+   docker compose down
+
+========================================================================

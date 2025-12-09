@@ -1,0 +1,16 @@
+# ANTES (Inseguro):
+# provider "aws" {
+#   access_key = "..." 
+#   secret_key = "..."
+# }
+
+# AHORA (Seguro):
+provider "aws" {
+  region = var.aws_region
+  # Terraform buscará las credenciales en el entorno
+}
+
+export AWS_ACCESS_KEY_ID="TU_ACCESS_KEY"
+export AWS_SECRET_ACCESS_KEY="TU_SECRET_KEY"
+export AWS_SESSION_TOKEN="TU_SESSION_TOKEN"
+export AWS_DEFAULT_REGION="us-east-1"

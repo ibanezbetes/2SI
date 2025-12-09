@@ -1,0 +1,120 @@
+==============================================================================
+⚡ CHULETA DE EMERGENCIA: TERRAFORM Y DOCKER ⚡
+==============================================================================
+
+------------------------------------------------------------------------------
+BLOQUE 1: TERRAFORM (Infraestructura en la Nube)
+------------------------------------------------------------------------------
+
+1. CICLO DE VIDA (COMANDOS EN ORDEN)
+   ---------------------------------
+   1. terraform init                  -> (Obligatorio al empezar) Descarga plugins.
+   2. terraform plan                  -> (Comprobación) Muestra qué va a crear.
+   3. terraform apply --auto-approve  -> (Acción) Crea la infraestructura real.
+   4. terraform destroy --auto-approve -> (Limpieza) BORRA TODO. Úsalo al final.
+
+2. CONFIGURACIÓN DE CREDENCIALES (AWS ACADEMY)
+   -------------------------------------------
+   Abre una terminal NUEVA y pega esto (reemplaza con tus datos de AWS Details):
+   
+   [Opción A - CMD / Símbolo del sistema]
+   setx AWS_ACCESS_KEY_ID "ASIA..."
+   setx AWS_SECRET_ACCESS_KEY "..."
+   setx AWS_SESSION_TOKEN "..."
+   setx AWS_DEFAULT_REGION "us-east-1"
+   (IMPORTANTE: Cierra y abre la terminal tras poner esto).
+
+   [Opción B - PowerShell]
+   $Env:AWS_ACCESS_KEY_ID="ASIA..."
+   $Env:AWS_SECRET_ACCESS_KEY="..."
+   $Env:AWS_SESSION_TOKEN="..."
+   $Env:AWS_DEFAULT_REGION="us-east-1"
+   (Funciona al momento, pero solo en esa ventana).
+
+3. ESTRUCTURA BÁSICA DE ARCHIVOS (.tf)
+   -----------------------------------
+   [main.tf] - El archivo principal
+   provider "aws" {
+     region = var.aws_region   # Usa variable
+   }
+
+   resource "aws_instance" "mi_maquina" {
+     ami           = "ami-011899242bb902164"  # Ubuntu en us-east-1
+     instance_type = "t2.micro"
+     key_name      = "labsuser"               # Clave de Academy
+   }
+
+   [variables.tf] - Para no hardcodear
+   variable "aws_region" {
+     default = "us-east-1"
+   }
+
+------------------------------------------------------------------------------
+BLOQUE 2: DOCKER COMPOSE (Orquestación Local)
+------------------------------------------------------------------------------
+
+1. COMANDOS ESENCIALES
+   -------------------
+   docker compose up --build    -> Levanta todo y recompila cambios (EL MÁS USADO).
+   docker compose up -d         -> Levanta en segundo plano (te deja la terminal libre).
+   docker compose ps            -> Muestra qué está corriendo.
+   docker compose logs -f       -> Muestra los logs en tiempo real.
+   docker compose down          -> Apaga y borra los contenedores.
+   docker compose down -v       -> ¡PELIGRO! Apaga y BORRA LOS DATOS (Volúmenes).
+
+2. ESTRUCTURA CLAVE (docker-compose.yml)
+   -------------------------------------
+   version: '3.8'
+   services:
+     
+     # SERVICIO 1: API (Backend)
+     api:
+       build: .                 # Usa el Dockerfile de aquí
+       ports:
+         - "3000:3000"          # "PUERTO_PC : PUERTO_DOCKER"
+       volumes:
+         - .:/app               # Hot Reload (Cambios en vivo)
+       env_file: .env           # Lee secretos
+       depends_on:
+         - db                   # Espera a la base de datos
+
+     # SERVICIO 2: BASE DE DATOS
+     db:
+       image: postgres:15-alpine
+       environment:             # O usa env_file
+         POSTGRES_PASSWORD: pass
+       volumes:
+         - pgdata:/var/lib/postgresql/data  # PERSISTENCIA (Guarda datos)
+
+   volumes:
+     pgdata:                    # Declaración del volumen
+
+3. ARCHIVO DE SECRETOS (.env)
+   --------------------------
+   DB_HOST=db       <-- ¡OJO! El host es el nombre del servicio en el compose
+   DB_PORT=5432
+   DB_USER=usuario
+   DB_PASS=secreto
+
+------------------------------------------------------------------------------
+SOLUCIÓN DE ERRORES FRECUENTES (TROUBLESHOOTING)
+------------------------------------------------------------------------------
+
+❌ Error: "No valid credentials found" (Terraform)
+   SOLUCIÓN: Tus claves caducaron o no reiniciaste la terminal tras el 'setx'. 
+   Vuelve a copiar las claves de AWS Academy.
+
+❌ Error: "Bind for 0.0.0.0:3000 failed: port is already allocated" (Docker)
+   SOLUCIÓN: Ya tienes algo corriendo en ese puerto.
+   Ejecuta: docker compose down (para matar lo viejo) y vuelve a probar.
+
+❌ Error: "Connection refused" (Entre API y DB)
+   SOLUCIÓN: Revisa que en el .env pongas DB_HOST=db (o como llames al servicio).
+   NO pongas localhost para comunicación interna entre contenedores.
+
+❌ Error: Cambié el código pero no se actualiza
+   SOLUCIÓN:
+   A) Si usas Docker: docker compose up --build (fuerza reconstrucción).
+   B) Si usas Terraform: terraform apply (fuerza actualización).
+
+==============================================================================

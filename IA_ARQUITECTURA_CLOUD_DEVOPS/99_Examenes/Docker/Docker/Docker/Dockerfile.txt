@@ -1,0 +1,34 @@
+///////////////
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:prod"]
+
+///////////
+
+
+
+docker build -t nest-api .
+
+docker run -p 3000:3000 nest-api
+
+# Listar activos
+docker ps
+
+# Detener (copia el ID del comando anterior)
+docker stop a1b2c3d4
+
+# Eliminar
+docker rm a1b2c3d4

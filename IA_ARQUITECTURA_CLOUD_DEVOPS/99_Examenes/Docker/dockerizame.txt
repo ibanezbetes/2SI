@@ -1,0 +1,149 @@
+================================================================================
+GUIA DE ESTUDIO COMPLETA: DESPLIEGUE FULL STACK & CLOUD
+Temario: Terraform, Docker, Docker Compose, NestJS y PostgreSQL
+================================================================================
+
+INDICE DE CONTENIDOS:
+1. INFRAESTRUCTURA COMO CODIGO (TERRAFORM - UNITS 1 & 2)
+2. DOCKERIZACION DE API (NESTJS - UNIT 3)
+3. ORQUESTACION CON DOCKER COMPOSE (UNIT 4)
+4. DATA BRIDGE: POSTGRESQL Y SEEDS (MISIONES GAMMA)
+5. CHEAT SHEET: COMANDOS ESENCIALES
+
+================================================================================
+1. INFRAESTRUCTURA COMO CODIGO (TERRAFORM)
+================================================================================
+
+CONCEPTOS CLAVE:
+- Provider: El proveedor de nube (AWS).
+- Resource: El componente a crear (Instancia, Security Group).
+- Learner Lab: Entorno de pruebas AWS con credenciales temporales.
+
+A) ANALISIS DEL ARCHIVO 'main.tf' (UNIT 1)
+------------------------------------------
+El codigo define dos recursos principales:
+1. AWS_SECURITY_GROUP (Firewall): Abre puertos 22 (SSH) y 80 (HTTP).
+2. AWS_INSTANCE (Servidor EC2): Ubuntu 20.04 + Script de arranque (Nginx).
+
+B) SEGURIDAD Y CREDENCIALES (UNIT 2)
+------------------------------------
+- UNIT 1 (INSEGURO): Claves escritas en el archivo.
+- UNIT 2 (SEGURO): Claves cargadas desde variables de entorno.
+
+>>> INSTRUCCIONES PASO A PASO (COMO EJECUTARLO):
+1. Copia tus credenciales del AWS Learner Lab.
+2. En la terminal, pega las exportaciones:
+   export AWS_ACCESS_KEY_ID="ASIA..."
+   export AWS_SECRET_ACCESS_KEY="..."
+   export AWS_SESSION_TOKEN="..."
+3. Inicializa Terraform (descarga plugins):
+   $ terraform init
+4. Revisa que se va a crear:
+   $ terraform plan
+5. Aplica los cambios (escribe 'yes' cuando pida confirmar):
+   $ terraform apply
+6. Copia la 'public_ip' que sale al final y pegala en el navegador para ver "Hola desde Terraform".
+7. Al terminar, destruye todo para no gastar saldo:
+   $ terraform destroy
+
+================================================================================
+2. DOCKERIZACION DE API (NESTJS - UNIT 3)
+================================================================================
+
+A) EL DOCKERFILE EXPLICADO
+--------------------------
+FROM node:20-alpine          (Imagen base ligera)
+WORKDIR /app                 (Carpeta interna)
+COPY package*.json ./        (Copiar dependencias primero - Cache)
+RUN npm install              (Instalar librerias)
+COPY . .                     (Copiar codigo fuente)
+RUN npm run build            (Compilar TS a JS)
+EXPOSE 3000                  (Puerto API)
+CMD ["npm", "run", "start:prod"] (Arrancar app)
+
+>>> INSTRUCCIONES PASO A PASO (COMO EJECUTARLO):
+1. Asegurate de tener el archivo 'Dockerfile' en la raiz del proyecto NestJS.
+2. Construye la imagen (el punto final es importante):
+   $ docker build -t nest-api .
+3. Arranca el contenedor mapeando puertos:
+   $ docker run -p 3000:3000 nest-api
+4. Prueba en tu navegador: http://localhost:3000
+5. Para detenerlo, busca el ID y paralo:
+   $ docker ps
+   $ docker stop [ID_CONTENEDOR]
+
+================================================================================
+3. ORQUESTACION CON DOCKER COMPOSE (UNIT 4)
+================================================================================
+
+A) ANALISIS DE 'docker-compose.yml'
+-----------------------------------
+- SERVICIO API: Usa 'build: .' y volumenes para Hot Reload.
+- SERVICIO WEB: Usa imagen Nginx y monta el HTML local.
+- DEPENDS_ON: La web espera a la API.
+
+B) COMUNICACION DE RED
+----------------------
+El cliente (HTML/JS) llama a localhost:3000. Los contenedores entre si se llaman por nombre de servicio.
+
+>>> INSTRUCCIONES PASO A PASO (COMO EJECUTARLO):
+1. Crea el archivo 'docker-compose.yml' junto al Dockerfile.
+2. Levanta todo el entorno (la flag --build fuerza reconstruir si cambiaste algo):
+   $ docker compose up --build
+3. Abre el navegador:
+   - Web Estatica: http://localhost:8080
+   - API NestJS: http://localhost:3000
+4. Haz clic en el boton de la web para probar la conexion con la API.
+5. Para apagar todo limpiamente:
+   $ docker compose down
+
+================================================================================
+4. DATA BRIDGE: POSTGRESQL Y SEEDS (MISIONES GAMMA)
+================================================================================
+
+A) CONFIGURACION
+----------------
+- Compose: Añadir servicio 'db' (postgres:14) con volumenes.
+- NestJS: Configurar TypeOrmModule apuntando al host 'db' (no localhost).
+
+B) LOGICA DE SEEDS
+------------------
+1. Limpiar (Delete/Truncate).
+2. Insertar (Save).
+3. Responder.
+
+>>> INSTRUCCIONES PASO A PASO (COMO EJECUTARLO):
+1. Añade el servicio 'db' a tu docker-compose.yml.
+2. Configura las variables de entorno (.env) en NestJS.
+3. Levanta el proyecto: $ docker compose up --build
+4. Entra al contenedor de la API (opcional, para ver logs):
+   $ docker compose logs -f api
+5. Ejecuta el endpoint del Seed desde el navegador o Postman:
+   GET http://localhost:3000/seed
+6. Verifica que la base de datos se ha llenado (deberia devolver "SEED EXECUTED").
+
+================================================================================
+5. CHEAT SHEET (RESUMEN DE COMANDOS)
+================================================================================
+
+TERRAFORM:
+- terraform init: Descarga plugins.
+- terraform plan: Previsualiza cambios.
+- terraform apply: Crea infraestructura.
+- terraform destroy: Borra infraestructura.
+
+DOCKER:
+- docker build -t [nombre] .: Construir imagen.
+- docker run -p [host]:[container] [img]: Correr contenedor.
+- docker ps: Ver activos.
+- docker stop [id]: Parar.
+
+DOCKER COMPOSE:
+- docker compose up -d: Levantar en segundo plano.
+- docker compose up --build: Levantar reconstruyendo.
+- docker compose down: Apagar y borrar.
+- docker compose logs -f: Ver logs en tiempo real.
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================

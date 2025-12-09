@@ -1,0 +1,95 @@
+========================================================================
+GUÍA DE PRÁCTICA 2: VARIABLES Y SEGURIDAD (TERRAFORM)
+========================================================================
+
+Objetivo: Limpiar el código de contraseñas y usar variables profesionales.
+
+--- FASE 1: LIMPIEZA DE ARCHIVOS ---
+
+1. Abre la carpeta de tu proyecto anterior en VS Code.
+2. Tienes el archivo "main.tf". Vamos a modificarlo.
+
+MODIFICACIÓN DE main.tf:
+Borra el bloque "provider" antiguo y cámbialo por este nuevo (fíjate que NO tiene claves y usa var.aws_region):
+
+# --- INICIO CAMBIO EN main.tf ---
+provider "aws" {
+  region = var.aws_region
+}
+# --- FIN CAMBIO EN main.tf ---
+
+El resto del archivo (resources, security group, etc.) DÉJALO IGUAL que estaba.
+
+------------------------------------------------------------------------
+
+--- FASE 2: CREAR EL ARCHIVO DE VARIABLES ---
+
+1. En la misma carpeta, crea un archivo nuevo llamado: variables.tf
+2. Pega este contenido dentro:
+
+# --- CONTENIDO DE variables.tf ---
+variable "aws_region" {
+  type        = string
+  description = "Región donde se desplegarán los recursos"
+  default     = "us-east-1"
+}
+# --- FIN DE variables.tf ---
+
+Guardas ambos archivos (Ctrl + S).
+
+------------------------------------------------------------------------
+
+--- FASE 3: CONFIGURAR CREDENCIALES (EL PASO CRÍTICO) ---
+
+Aquí es donde le damos las llaves al sistema operativo en lugar de al código.
+
+1. Ve a AWS Academy -> Learner Lab -> AWS Details -> Show (junto a CLI).
+2. Copia las credenciales.
+3. Abre tu terminal de Windows (CMD o PowerShell).
+
+IMPORTANTE: El temario usa "setx". Este comando fija las variables en Windows.
+Ejecuta estos comandos UNO A UNO en la terminal, sustituyendo por tus claves reales:
+
+setx AWS_ACCESS_KEY_ID "ASIA..."
+setx AWS_SECRET_ACCESS_KEY "wJalrX..."
+setx AWS_SESSION_TOKEN "IQoJb3..."
+setx AWS_DEFAULT_REGION "us-east-1"
+
+(Si al pulsar Enter te dice "CORRECTO: Se guardó...", todo va bien).
+
+!!! PASO OBLIGATORIO !!!
+Cierra esa terminal y abre una NUEVA.
+¿Por qué? Porque Windows no carga las variables nuevas en una ventana que ya estaba abierta. Si no reinicias la terminal, Terraform te dirá "No credentials found".
+
+------------------------------------------------------------------------
+
+--- FASE 4: COMPROBACIÓN Y DESPLIEGUE ---
+
+1. En la NUEVA terminal, navega a tu carpeta del proyecto.
+   (Ej: cd Desktop/MiProyectoTerraform)
+
+2. Comprueba si Terraform ve tus claves. Ejecuta:
+   echo %AWS_REGION%
+   (Debería salirte "us-east-1". Si sale %AWS_REGION%, es que no reiniciaste la terminal bien o falló el setx).
+
+3. Si todo está correcto, ejecuta el ciclo de Terraform de siempre:
+
+   terraform init
+   (Para recargar configuración).
+
+   terraform plan
+   (Aquí es la prueba de fuego. Si no te pide claves y te muestra el plan verde, ¡FELICIDADES! Lo has configurado de forma segura).
+
+   terraform apply --auto-approve
+   (Crea la infraestructura).
+
+------------------------------------------------------------------------
+
+--- FASE 5: LIMPIEZA ---
+
+1. terraform destroy --auto-approve
+
+2. (Opcional pero recomendado): Como usaste "setx", esas claves se han quedado guardadas en tu Windows. Dado que las claves de Academy caducan en unas horas, no pasa nada grave, pero es bueno saber que siguen ahí.
+   Para borrarlas en el futuro puedes poner:
+   setx AWS_ACCESS_KEY_ID ""
+========================================================================
