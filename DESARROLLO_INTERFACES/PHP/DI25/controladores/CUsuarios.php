@@ -22,13 +22,29 @@ class CUsuarios extends Controlador{
         extract($datos);
         $nombre = isset($nombre) ? $nombre : '';
         $email = isset($email) ? $email : '';
+        $pagina = isset($pagina) ? (int)$pagina : 1;
+        $tamPag = isset($tam_pag) ? (int)$tam_pag : 5;
         
-        // Construir la consulta SQL base
+        // 1. Obtener el TOTAL de registros (sin paginación)
+        // Construir la consulta SQL para contar
+        $sqlCount = "SELECT COUNT(*) as total FROM usuarios WHERE activo='S'";
+        
+        $filtro = "";
+        if($nombre != '') $filtro .= " AND nombre LIKE '%$nombre%'";
+        if($email != '') $filtro .= " AND mail LIKE '%$email%'";
+        
+        $sqlCount .= $filtro;
+        
+        $res = $this->dao->consultar($sqlCount);
+        $totalRegistros = $res[0]['total'];
+        
+        // 2. Obtener los registros de la página actual
+        $offset = ($pagina - 1) * $tamPag;
+        
         $sql = "SELECT idUsuario, nombre, apellido1, apellido2, mail, movil, activo FROM usuarios WHERE activo='S'";
-        // Añadir filtros si se han especificado
-        if($nombre != '') $sql .= " AND nombre LIKE '%$nombre%'";
-        if($email != '') $sql .= " AND mail LIKE '%$email%'";
+        $sql .= $filtro;
         $sql .= " ORDER BY nombre, apellido1";
+        $sql .= " LIMIT $offset, $tamPag";
         
         $usuarios = $this->dao->consultar($sql);
         
@@ -44,6 +60,14 @@ class CUsuarios extends Controlador{
                       </td></tr>';
             }
             echo '</tbody></table></div>';
+            
+            // Renderizar la vista de paginación
+            Vista::render('vistas/VPaginador.php', array(
+                'totalRegistros' => $totalRegistros,
+                'pagActual' => $pagina,
+                'tamPag' => $tamPag
+            ));
+            
         }else{
             echo '<div class="alert alert-warning">No se encontraron usuarios</div>';
         }
