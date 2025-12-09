@@ -25,6 +25,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="librerias/bootstrap-5.3.8-dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="css/estilos.css">
+        <link rel="manifest" href="manifest.json">
         <script src="librerias/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body>
@@ -89,6 +90,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
         <script src="js/usuarios.js"></script>
         <script src="js/productos.js"></script>
         <script src="js/paginacion.js"></script>
+        <script src="pwa.js"></script>
     </body>
 
 

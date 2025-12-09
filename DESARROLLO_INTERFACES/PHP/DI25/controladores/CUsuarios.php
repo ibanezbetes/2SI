@@ -50,9 +50,9 @@ class CUsuarios extends Controlador{
         
         if(count($usuarios) > 0){
             echo '<div class="table-responsive"><table class="table table-striped table-hover">
-                  <thead><tr><th>ID</th><th>Nombre</th><th>Apellidos</th><th>Email</th><th>Móvil</th><th>Acciones</th></tr></thead><tbody>';
+                  <thead><tr><th>Nombre</th><th>Apellidos</th><th>Email</th><th>Móvil</th><th>Acciones</th></tr></thead><tbody>';
             foreach($usuarios as $u){
-                echo '<tr><td>'.$u['idUsuario'].'</td><td>'.$u['nombre'].'</td>
+                echo '<tr><td>'.$u['nombre'].'</td>
                       <td>'.$u['apellido1'].' '.($u['apellido2'] ?? '').'</td><td>'.$u['mail'].'</td>
                       <td>'.$u['movil'].'</td><td>
                       <button class="btn btn-sm btn-primary me-1" onclick="editarUsuario('.$u['idUsuario'].');">✏️</button>

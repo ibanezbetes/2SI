@@ -29,6 +29,7 @@ if($usuario=='' || $pass==''){
         <title>Login di25</title>
         <link rel="stylesheet" href="librerias/bootstrap-5.3.8-dist/css/bootstrap.min.css">
         <link rel="stylesheet" href="css/estilos.css">
+        <link rel="manifest" href="manifest.json">
         <script src="librerias/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body class="d-flex align-items-center">

@@ -17,48 +17,67 @@ function limpiarBusqueda() {
 // Genera y muestra el formulario HTML para crear un nuevo usuario
 function mostrarFormularioCrear() {
   const formulario = `
-    <div id="mensajesUsuario"></div>
-    <form id="formUsuario">
-      <div class="mb-3">
-        <label class="form-label">Nombre *</label>
-        <input type="text" class="form-control" id="nombreUsuario" name="nombre" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Primer Apellido *</label>
-        <input type="text" class="form-control" id="apellido1Usuario" name="apellido1" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Segundo Apellido</label>
-        <input type="text" class="form-control" id="apellido2Usuario" name="apellido2">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Email *</label>
-        <input type="email" class="form-control" id="mailUsuario" name="mail" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Móvil</label>
-        <input type="text" class="form-control" id="movilUsuario" name="movil">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Login *</label>
-        <input type="text" class="form-control" id="loginUsuario" name="login" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Contraseña *</label>
-        <input type="password" class="form-control" id="passUsuario" name="pass" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Sexo</label>
-        <select class="form-control" id="sexoUsuario" name="sexo">
-          <option value="H">Hombre</option>
-          <option value="M">Mujer</option>
-        </select>
-      </div>
-      <div class="d-grid gap-2">
-        <button type="button" class="btn btn-primary" onclick="guardarUsuario();">Guardar Usuario</button>
-        <button type="button" class="btn btn-secondary" onclick="cancelarFormulario();">Cancelar</button>
-      </div>
-    </form>
+    <!-- Overlay de fondo -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040;"></div>
+    
+    <!-- Modal Centrado -->
+    <div class="p-4 rounded shadow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 33%; min-width: 400px; max-height: 90vh; overflow-y: auto; z-index: 1050; background-color: var(--surface-color); color: var(--bs-body-color); border: 1px solid var(--bs-border-color);">
+        <h4 class="mb-4" style="color: var(--bs-light) !important;">Crear Nuevo Usuario</h4>
+        <div id="mensajesUsuario"></div>
+        <form id="formUsuario">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="nombreUsuario" name="nombre" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Primer Apellido *</label>
+              <input type="text" class="form-control" id="apellido1Usuario" name="apellido1" required>
+            </div>
+          </div>
+          
+          <div class="row">
+             <div class="col-md-6 mb-3">
+              <label class="form-label">Segundo Apellido</label>
+              <input type="text" class="form-control" id="apellido2Usuario" name="apellido2">
+            </div>
+             <div class="col-md-6 mb-3">
+              <label class="form-label">Email *</label>
+              <input type="email" class="form-control" id="mailUsuario" name="mail" required>
+            </div>
+          </div>
+          
+          <div class="row">
+             <div class="col-md-6 mb-3">
+              <label class="form-label">Móvil</label>
+              <input type="text" class="form-control" id="movilUsuario" name="movil">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Sexo</label>
+              <select class="form-control" id="sexoUsuario" name="sexo">
+                <option value="H">Hombre</option>
+                <option value="M">Mujer</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Login *</label>
+              <input type="text" class="form-control" id="loginUsuario" name="login" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Contraseña *</label>
+              <input type="password" class="form-control" id="passUsuario" name="pass" required>
+            </div>
+          </div>
+          
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+            <button type="button" class="btn btn-primary" onclick="guardarUsuario();">Guardar</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelarFormulario();">Cancelar</button>
+          </div>
+        </form>
+    </div>
   `;
 
   document.getElementById("formularioUsuario").innerHTML = formulario;
@@ -80,45 +99,64 @@ function editarUsuario(idUsuario) {
 
 function mostrarFormularioEditar(usuario) {
   const formulario = `
-    <div id="mensajesUsuario"></div>
-    <form id="formUsuario">
-      <input type="hidden" id="idUsuario" value="${usuario.idUsuario}">
-      <div class="mb-3">
-        <label class="form-label">Nombre *</label>
-        <input type="text" class="form-control" id="nombreUsuario" value="${usuario.nombre}" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Primer Apellido *</label>
-        <input type="text" class="form-control" id="apellido1Usuario" value="${usuario.apellido1}" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Segundo Apellido</label>
-        <input type="text" class="form-control" id="apellido2Usuario" value="${usuario.apellido2 || ""}">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Email *</label>
-        <input type="email" class="form-control" id="mailUsuario" value="${usuario.mail}" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Móvil</label>
-        <input type="text" class="form-control" id="movilUsuario" value="${usuario.movil || ""}">
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Login *</label>
-        <input type="text" class="form-control" id="loginUsuario" value="${usuario.login}" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Sexo</label>
-        <select class="form-control" id="sexoUsuario">
-          <option value="H" ${usuario.sexo === "H" ? "selected" : ""}>Hombre</option>
-          <option value="M" ${usuario.sexo === "M" ? "selected" : ""}>Mujer</option>
-        </select>
-      </div>
-      <div class="d-grid gap-2">
-        <button type="button" class="btn btn-primary" onclick="actualizarUsuario();">Actualizar Usuario</button>
-        <button type="button" class="btn btn-secondary" onclick="cancelarFormulario();">Cancelar</button>
-      </div>
-    </form>
+    <!-- Overlay de fondo -->
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040;"></div>
+    
+    <!-- Modal Centrado -->
+    <div class="p-4 rounded shadow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 33%; min-width: 400px; max-height: 90vh; overflow-y: auto; z-index: 1050; background-color: var(--surface-color); color: var(--bs-body-color); border: 1px solid var(--bs-border-color);">
+        <h4 class="mb-4" style="color: var(--bs-light) !important;">Editar Usuario</h4>
+        <div id="mensajesUsuario"></div>
+        <form id="formUsuario">
+          <input type="hidden" id="idUsuario" value="${usuario.idUsuario}">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" id="nombreUsuario" value="${usuario.nombre}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Primer Apellido *</label>
+              <input type="text" class="form-control" id="apellido1Usuario" value="${usuario.apellido1}" required>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Segundo Apellido</label>
+              <input type="text" class="form-control" id="apellido2Usuario" value="${usuario.apellido2 || ""}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Email *</label>
+              <input type="email" class="form-control" id="mailUsuario" value="${usuario.mail}" required>
+            </div>
+          </div>
+    
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Móvil</label>
+              <input type="text" class="form-control" id="movilUsuario" value="${usuario.movil || ""}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Login *</label>
+              <input type="text" class="form-control" id="loginUsuario" value="${usuario.login}" required>
+            </div>
+          </div>
+            
+          <div class="row">
+             <div class="col-md-12 mb-3">
+              <label class="form-label">Sexo</label>
+              <select class="form-control" id="sexoUsuario">
+                <option value="H" ${usuario.sexo === "H" ? "selected" : ""}>Hombre</option>
+                <option value="M" ${usuario.sexo === "M" ? "selected" : ""}>Mujer</option>
+              </select>
+            </div>
+          </div>
+    
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+            <button type="button" class="btn btn-primary" onclick="actualizarUsuario();">Actualizar</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelarFormulario();">Cancelar</button>
+          </div>
+        </form>
+    </div>
   `;
 
   document.getElementById("formularioUsuario").innerHTML = formulario;
