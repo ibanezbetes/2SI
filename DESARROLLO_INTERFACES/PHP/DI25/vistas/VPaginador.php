@@ -30,12 +30,6 @@ $fin = min($inicio + $tamPag - 1, $totalRegistros);
     <div class="col-md-4 mb-2">
         <div class="d-flex align-items-center">
             <span class="me-2">Mostrando <?php echo $inicio; ?>-<?php echo $fin; ?> de <?php echo $totalRegistros; ?></span>
-            <select class="form-select form-select-sm w-auto" onchange="cambiarTamPag(this.value)">
-                <option value="5" <?php echo $tamPag==5?'selected':''; ?>>5</option>
-                <option value="10" <?php echo $tamPag==10?'selected':''; ?>>10</option>
-                <option value="20" <?php echo $tamPag==20?'selected':''; ?>>20</option>
-                <option value="50" <?php echo $tamPag==50?'selected':''; ?>>50</option>
-            </select>
         </div>
     </div>
 

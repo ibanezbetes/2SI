@@ -88,6 +88,7 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
         <script src="js/utils.js"></script>
         <script src="js/usuarios.js"></script>
         <script src="js/productos.js"></script>
+        <script src="js/paginacion.js"></script>
     </body>
 
 

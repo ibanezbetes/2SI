@@ -23,7 +23,7 @@ class CUsuarios extends Controlador{
         $nombre = isset($nombre) ? $nombre : '';
         $email = isset($email) ? $email : '';
         $pagina = isset($pagina) ? (int)$pagina : 1;
-        $tamPag = isset($tam_pag) ? (int)$tam_pag : 5;
+        $tamPag = isset($tam_pag) ? (int)$tam_pag : 15;
         
         // 1. Obtener el TOTAL de registros (sin paginación)
         // Construir la consulta SQL para contar

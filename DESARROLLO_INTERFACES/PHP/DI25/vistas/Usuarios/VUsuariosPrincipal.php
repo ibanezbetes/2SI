@@ -1,12 +1,9 @@
-<?php
-    echo'
-    <script src="js/paginacion.js"></script>
     <div class="container-fluid">
         <!-- Formulario de búsqueda de usuarios -->
         <form id="formularioBuscar">
             <!-- Campos ocultos para paginación -->
             <input type="hidden" id="pagina" name="pagina" value="1">
-            <input type="hidden" id="tam_pag" name="tam_pag" value="5">
+            <input type="hidden" id="tam_pag" name="tam_pag" value="15">
 
             <div class="row">
                 <div class="col-md-6 col-sm-12">
@@ -49,6 +46,3 @@
         </div>
     </div>
 
-    ';
-
-?>
