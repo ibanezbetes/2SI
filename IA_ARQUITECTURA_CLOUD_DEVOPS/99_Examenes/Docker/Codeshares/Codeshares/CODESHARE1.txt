@@ -10,9 +10,9 @@ terraform {
 # ⚠️ Aquí van tus credenciales del Learner Lab
 provider "aws" {
   region     = "us-east-1"
-  access_key = "ASIAV3JEKDX56TQGYFKN"     # Pega aquí tu AWS_ACCESS_KEY_ID
-  secret_key = "OykGBs3v3WP9XmnSCqhNxO3C91SzKOBsCGJtbrVi"     # Pega aquí tu AWS_SECRET_ACCESS_KEY
-  token      = "IQoJb3JpZ2luX2VjEEEaCXVzLXdlc3QtMiJHMEUCIQDMG1MXqvpmWvOwAXa9zhbmIOwI+jlBqghibi1c5rBzVQIgLg8hJ/MoOcMNfemv820CsV46+BI+OSfmo7G77wHFRUAqtwIIuv//////////ARAAGgw0MDIxOTI0NzM1OTUiDOvycO4CS9y1KqI6fCqLAls/ShzBKLYnfs7acq4faOBIyIgW9xQesGCgINsqKseyoRy53d+Jq/vjWQX64GzBeuePnk2QHTraqY/fCNqHU2UFw81XMr9Bg7EcYY5YxStPiMQWKwHQjj+9cWuYcQ4W2+3997KYynuOiGRNPDZK9F88PBWP50tt8JvTeSp4ZE/hyiBF165Hm3aiFKK5h2yA4u1nFniKu2Kh9K/ePwjcgsAGHkuB68Kh3ItoRsB9BdNi7XaTi4l2fFyNrjBxvdV44ebK/lKv9WOCPLEV+1o/20PxbqGzEcNycSX2nWeqDfUUUX8av0ItAc5A/IKfCyYSYpk3FJZy7brvzlj88Ds3r50aOapjPe4ti4Kh6TD+h6/GBjqdAZSd3AFcxoTmlVTQCxHiYe4dV/ysUiJb6TyRGycaH2wIUDW+KTu64nv/13cEsB5fCBgXM6mgl7MuxVroLt6jBgiWwxNvcaf+OIhF3sINEty1EseeCo2dWPH9j+dTS6sGKG/8kKzFyRH41qYL5YWgJHIGbONFQPFeMekGayxX+yCzDJYyDN14A8KpDmsuIN/Md0xY/DcRLFnQ834BUu8="     # Pega aquí tu AWS_SESSION_TOKEN (es largo)
+  access_key = "XXX"     # Pega aquí tu AWS_ACCESS_KEY_ID
+  secret_key = "X"     # Pega aquí tu AWS_SECRET_ACCESS_KEY
+  token      = "XXXXXX"     # Pega aquí tu AWS_SESSION_TOKEN (es largo)
 }
 
 
