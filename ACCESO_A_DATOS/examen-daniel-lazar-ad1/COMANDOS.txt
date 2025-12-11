@@ -1,0 +1,19 @@
+-- 1. Borrar el usuario si ya existe.
+-- Nota: Si es la primera vez, dará error "user does not exist", ignóralo.
+
+DROP USER DANI CASCADE;
+
+-- 2. Crear el usuario DANI asignando su tablespace y cuota DIRECTAMENTE.
+-- En 11g (y en general) es mejor hacerlo todo al crear.
+
+CREATE USER DANI IDENTIFIED BY DANI
+DEFAULT TABLESPACE USERS
+QUOTA UNLIMITED ON USERS;
+
+-- 3. Darle permisos de SUPER ADMINISTRADOR.
+
+GRANT CONNECT, RESOURCE, DBA TO DANI;
+
+-- 4. Conectar.
+
+CONNECT DANI/DANI;

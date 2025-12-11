@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<datos_ordenes>
+    <orden>
+        <id_orden>1</id_orden>
+        <codigo_orden>O1</codigo_orden>
+        <fecha_generacion>2025-12-11 09:33:43</fecha_generacion>
+        <estado>en preparacion</estado>
+        <prioridad>normal</prioridad>
+        <id_pedido>1</id_pedido>
+        <id_responsable>1</id_responsable>
+        <transporte_coste>0.0</transporte_coste>
+    </orden>
+    <orden>
+        <id_orden>2</id_orden>
+        <codigo_orden>O2</codigo_orden>
+        <fecha_generacion>2025-12-11 09:33:43</fecha_generacion>
+        <estado>enviada</estado>
+        <prioridad>urgente</prioridad>
+        <id_pedido>2</id_pedido>
+        <id_responsable>3</id_responsable>
+        <transporte_compania>DHL</transporte_compania>
+        <transporte_coste>15.5</transporte_coste>
+        <transporte_tracking>DHL-123</transporte_tracking>
+        <fecha_salida>2025-12-11 09:33:43</fecha_salida>
+    </orden>
+    <orden>
+        <id_orden>3</id_orden>
+        <codigo_orden>O3</codigo_orden>
+        <fecha_generacion>2025-12-11 09:33:43</fecha_generacion>
+        <estado>pendiente</estado>
+        <prioridad>normal</prioridad>
+        <id_pedido>3</id_pedido>
+        <id_responsable>1</id_responsable>
+        <transporte_coste>0.0</transporte_coste>
+    </orden>
+</datos_ordenes>
