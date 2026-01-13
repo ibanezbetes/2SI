@@ -1,7 +1,11 @@
 /* CREAR UNA CACHE DE FUENTES Y FICHEROS */
 const NOMBRE_CACHE = "cache_principal";
 var urls=['iconos/logo.png',
-        'offline.html'];
+        'offline.html',
+        'css/estilos.css',
+        'login.php',
+        'librerias/bootstrap-5.3.8-dist/css/bootstrap.min.css',
+        'librerias/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js'];
 
 self.addEventListener("install", function (event) {  //evento que ejecuta al instalar
     event.waitUntil(  //espera a que se haya registrado el service worker, para cargar la cache

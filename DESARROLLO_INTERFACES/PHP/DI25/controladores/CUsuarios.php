@@ -62,10 +62,11 @@ class CUsuarios extends Controlador{
             echo '</tbody></table></div>';
             
             // Renderizar la vista de paginación
-            Vista::render('vistas/VPaginador.php', array(
+            Vista::render('vistas/VPaginacion.php', array(
                 'totalRegistros' => $totalRegistros,
                 'pagActual' => $pagina,
-                'tamPag' => $tamPag
+                'tamPag' => $tamPag,
+                'funcionCallback' => 'buscarUsuarios'
             ));
             
         }else{

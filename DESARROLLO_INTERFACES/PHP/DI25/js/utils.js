@@ -72,8 +72,11 @@ function obtenerVista(controlador, metodo, destino, parametrosExtra = "") {
 // Función para enviar formularios de búsqueda por AJAX
 // Recoge todos los campos del formulario y los envía al servidor
 // Pinta la respuesta en el contenedor 'destino'
-function buscar(controlador, metodo, formulario, destino) {
+function buscar(controlador, metodo, formulario, destino, parametrosExtra = "") {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
+  if(parametrosExtra){
+      parametros += "&" + parametrosExtra;
+  }
 
   // Obtener los datos del formulario y convertirlos a URL params
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById(formulario))).toString();

@@ -11,11 +11,10 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
                        <img src="iconos/logout.png" style="height:2em;" alt="Logout">
                    </a>
                </div>';
-// Si no ha iniciado sesión, mostramos el botón de Login
 }else{
-    $btnlog = '<a href="login.php">
-                   <img src="iconos/login.png" style="height:2em;" alt="Login">
-               </a>';
+    // Si no está logueado, redirigir a login
+    header("Location: login.php");
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -70,6 +69,8 @@ if(isset($_SESSION['login']) && $_SESSION['login']!=''){
             <!-- Enlace que carga dinámicamente la vista de usuarios usando AJAX -->
             <li><a class="dropdown-item" 
                 onclick="obtenerVista('Usuarios','getVistaUsuariosPrincipal','capaContenido');" >Usuarios</a></li>
+            <li><a class="dropdown-item" 
+                onclick="obtenerVista('Pedidos','getVistaPedidosPrincipal','capaContenido');" >Pedidos</a></li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
         </ul>

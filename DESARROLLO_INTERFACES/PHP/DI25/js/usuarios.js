@@ -1,6 +1,7 @@
 // Llama a la función genérica 'buscar' para obtener la lista de usuarios filtrada
-function buscarUsuarios() {
-  buscar("Usuarios", "getVistaListadoUsuarios", "formularioBuscar", "capaResultadosBusqueda");
+function buscarUsuarios(pagina = 1, tamPag = 5) {
+  const params = `pagina=${pagina}&tam_pag=${tamPag}`;
+  buscar("Usuarios", "getVistaListadoUsuarios", "formularioBuscar", "capaResultadosBusqueda", params);
 }
 
 // Resetea el formulario y muestra todos los usuarios
