@@ -1,256 +1,300 @@
 :root {
-    --bs-primary: #0d6efd;
-    --bs-secondary: #6c757d;
-    --bs-success: #198754;
-    --bs-info: #0dcaf0;
-    --bs-danger: #dc3545;
-    --bs-light: #dee2e6;
-    --bs-dark: #212529;
-    --bs-body-bg: #212529;
-    --bs-body-color: #dee2e6;
-    --bs-border-color: #495057;
-    --surface-color: #343a40;
-    --bs-border-radius: 0.375rem;
-    --bs-border-radius-sm: 0.25rem;
+  --bs-primary: #0d6efd;
+  --bs-secondary: #6c757d;
+  --bs-success: #198754;
+  --bs-info: #0dcaf0;
+  --bs-danger: #dc3545;
+  --bs-light: #dee2e6;
+  --bs-dark: #212529;
+  --bs-body-bg: #212529;
+  --bs-body-color: #dee2e6;
+  --bs-border-color: #495057;
+  --surface-color: #343a40;
+  --bs-border-radius: 0.375rem;
+  --bs-border-radius-sm: 0.25rem;
 }
 
 body {
-    background-color: var(--bs-body-bg);
-    color: var(--bs-body-color);
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
-.container, .container-fluid {
-    padding-left: 2rem;
-    padding-right: 2rem;
+.container,
+.container-fluid {
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
-.card, .table, .alert, .form-control, .btn, .dropdown-menu, .navbar {
-    border-radius: var(--bs-border-radius) !important;
+.card,
+.table,
+.alert,
+.form-control,
+.btn,
+.dropdown-menu,
+.navbar {
+  border-radius: var(--bs-border-radius) !important;
 }
 
-.card, .navbar, .dropdown-menu {
-    background-color: var(--surface-color);
-    border-color: var(--bs-border-color);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
+.card,
+.navbar,
+.dropdown-menu {
+  background-color: var(--surface-color);
+  border-color: var(--bs-border-color);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
 }
 
 .form-control {
-    background-color: var(--surface-color);
-    color: #e9ecef !important;
-    border-color: var(--bs-border-color);
+  background-color: var(--surface-color);
+  color: #e9ecef !important;
+  border-color: var(--bs-border-color);
 }
 
 .form-control:focus {
-    background-color: var(--surface-color);
-    color: #fff !important;
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  background-color: var(--surface-color);
+  color: #fff !important;
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 .form-control::placeholder {
-    color: #adb5bd !important;
+  color: #adb5bd !important;
 }
 
 .form-label {
-    color: #e9ecef !important;
-    font-weight: 500;
+  color: #e9ecef !important;
+  font-weight: 500;
 }
 
 .table {
-    background-color: var(--surface-color);
-    color: #fff !important;
+  background-color: var(--surface-color);
+  color: #fff !important;
 }
 
 .table thead th {
-    background-color: #495057;
-    color: #fff !important;
-    border-color: var(--bs-border-color);
-    font-weight: 600;
+  background-color: #495057;
+  color: #fff !important;
+  border-color: var(--bs-border-color);
+  font-weight: 600;
 }
 
 .table tbody td {
-    color: #fff !important;
-    border-color: var(--bs-border-color);
+  color: #fff !important;
+  border-color: var(--bs-border-color);
 }
 
-.table-striped>tbody>tr:nth-of-type(odd)>* {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
-    color: #fff !important;
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
+  color: #fff !important;
 }
 
 .table-hover > tbody > tr:hover > * {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.1);
-    color: #fff !important;
+  --bs-table-accent-bg: rgba(255, 255, 255, 0.1);
+  color: #fff !important;
 }
 
 .nav-link {
-    color: #e9ecef !important;
-    font-weight: 500;
+  color: #e9ecef !important;
+  font-weight: 500;
 }
 
 .nav-link:hover {
-    color: #fff !important;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: var(--bs-border-radius-sm);
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--bs-border-radius-sm);
 }
 
 .nav-link.active {
-    color: #fff !important;
-    background-color: rgba(255, 255, 255, 0.15);
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .navbar-brand {
-    color: #fff !important;
-    font-weight: 600;
+  color: #fff !important;
+  font-weight: 600;
 }
 
-.h4, h1.h4 {
-    color: #fff !important;
-    font-weight: 500;
+.h4,
+h1.h4 {
+  color: #fff !important;
+  font-weight: 500;
 }
 
 .dropdown-item {
-    color: var(--bs-light) !important;
+  color: var(--bs-light) !important;
 }
 
 .dropdown-item:hover {
-    color: #fff !important;
-    background-color: var(--bs-primary);
+  color: #fff !important;
+  background-color: var(--bs-primary);
 }
 
 .text-muted {
-    color: #adb5bd !important;
+  color: #adb5bd !important;
 }
 
 .navbar {
-    background-color: var(--surface-color) !important;
-    border-bottom: 1px solid var(--bs-border-color);
+  background-color: var(--surface-color) !important;
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
 .btn {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 .btn-primary {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
-    color: #fff;
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #fff;
 }
 
 .btn-info {
-    background-color: var(--bs-info);
-    border-color: var(--bs-info);
-    color: #000;
+  background-color: var(--bs-info);
+  border-color: var(--bs-info);
+  color: #000;
 }
 
 .btn-secondary {
-    background-color: var(--bs-secondary);
-    border-color: var(--bs-secondary);
-    color: #fff;
+  background-color: var(--bs-secondary);
+  border-color: var(--bs-secondary);
+  color: #fff;
 }
 
 .btn-success {
-    background-color: var(--bs-success);
-    border-color: var(--bs-success);
-    color: #fff;
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+  color: #fff;
 }
 
 .py-2 {
-    background-color: var(--bs-dark);
-    border-bottom: 1px solid var(--bs-border-color);
+  background-color: var(--bs-dark);
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
 .d-flex span {
-    color: #e9ecef !important;
-    font-weight: 500;
+  color: #e9ecef !important;
+  font-weight: 500;
 }
 
-.form-select, select.form-control {
-    background-color: var(--surface-color);
-    color: #e9ecef !important;
-    border-color: var(--bs-border-color);
+.form-select,
+select.form-control {
+  background-color: var(--surface-color);
+  color: #e9ecef !important;
+  border-color: var(--bs-border-color);
 }
 
 textarea.form-control {
-    background-color: var(--surface-color);
-    color: #e9ecef !important;
-    border-color: var(--bs-border-color);
+  background-color: var(--surface-color);
+  color: #e9ecef !important;
+  border-color: var(--bs-border-color);
 }
 
-img[src*="login.png"], img[src*="logout.png"] {
-    filter: invert(1) brightness(1);
+img[src*="login.png"],
+img[src*="logout.png"] {
+  filter: invert(1) brightness(1);
 }
 
 img[src*="logo.png"] {
-    filter: none;
+  filter: none;
 }
 
 .table .btn {
-    color: #fff !important;
+  color: #fff !important;
 }
 
 .table .btn-primary {
-    background-color: var(--bs-primary) !important;
+  background-color: var(--bs-primary) !important;
 }
 
 .table .btn-danger {
-    background-color: var(--bs-danger) !important;
+  background-color: var(--bs-danger) !important;
 }
 
-html.login-page, html.login-page body {
-    height: 100%;
+html.login-page,
+html.login-page body {
+  height: 100%;
 }
 
 .formulario {
-    max-width: 330px;
-    padding: 2rem;
-    margin: auto !important;
-    width: 100% !important;
-    background-color: var(--surface-color);
-    border-radius: var(--bs-border-radius);
-    border: 1px solid var(--bs-border-color);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
+  max-width: 330px;
+  padding: 2rem;
+  margin: auto !important;
+  width: 100% !important;
+  background-color: var(--surface-color);
+  border-radius: var(--bs-border-radius);
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.15);
 }
 
 .msj {
-    color: var(--bs-danger) !important;
-    font-weight: 500;
+  color: var(--bs-danger) !important;
+  font-weight: 500;
 }
 
 h1.h3 {
-    color: var(--bs-light) !important;
-    text-align: center;
-    margin-bottom: 2rem;
+  color: var(--bs-light) !important;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .form-floating > label {
-    color: #6c757d !important;
+  color: #6c757d !important;
 }
 
 .form-floating > .form-control {
-    background-color: var(--surface-color);
-    border-color: var(--bs-border-color);
-    color: #fff !important;
+  background-color: var(--surface-color);
+  border-color: var(--bs-border-color);
+  color: #fff !important;
 }
 
 .form-floating > .form-control:focus {
-    background-color: var(--surface-color);
-    border-color: var(--bs-primary);
-    color: #fff !important;
+  background-color: var(--surface-color);
+  border-color: var(--bs-primary);
+  color: #fff !important;
 }
 
 .form-floating > .form-control:focus ~ label,
 .form-floating > .form-control:not(:placeholder-shown) ~ label {
-    color: var(--bs-primary) !important;
-    opacity: 0.65;
+  color: var(--bs-primary) !important;
+  opacity: 0.65;
 }
 
 pre {
-    background-color: var(--surface-color);
-    color: var(--bs-body-color);
-    padding: 1rem;
-    border-radius: var(--bs-border-radius);
-    border: 1px solid var(--bs-border-color);
+  background-color: var(--surface-color);
+  color: var(--bs-body-color);
+  padding: 1rem;
+  border-radius: var(--bs-border-radius);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* Paginación Oscura */
+.page-link {
+  background-color: var(--surface-color);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+}
+
+.page-link:hover {
+  background-color: var(--bs-border-color);
+  color: #fff;
+  border-color: var(--bs-border-color);
+}
+
+.page-item.active .page-link {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: #fff;
+}
+
+.page-item.disabled .page-link {
+  background-color: #1a1d20;
+  border-color: var(--bs-border-color);
+  color: #6c757d;
+}
+
+.page-link input {
+  background-color: #212529; /* Dark Input */
+  color: #fff;
+  border: 1px solid var(--bs-border-color);
 }

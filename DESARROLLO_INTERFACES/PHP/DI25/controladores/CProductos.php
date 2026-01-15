@@ -17,13 +17,29 @@ class CProductos extends Controlador{
     }
     
     // Listar productos según filtros de búsqueda
+    // Listar productos según filtros de búsqueda con Paginación
     public function getVistaListadoProductos($datos=array()){
         extract($datos);
         $producto = isset($producto) ? $producto : '';
+        $pagina = isset($pagina) ? (int)$pagina : 1;
+        $tamPag = isset($tam_pag) ? (int)$tam_pag : 15;
+        
+        // 1. Obtener el TOTAL de registros (sin paginación)
+        $sqlCount = "SELECT COUNT(*) as total FROM productos WHERE activo='S'";
+        $filtro = "";
+        if($producto != '') $filtro .= " AND producto LIKE '%$producto%'";
+        $sqlCount .= $filtro;
+        
+        $res = $this->dao->consultar($sqlCount);
+        $totalRegistros = $res[0]['total'];
+        
+        // 2. Obtener los registros de la página actual
+        $offset = ($pagina - 1) * $tamPag;
         
         $sql = "SELECT idProducto, producto, descripcion, stock, precioVenta FROM productos WHERE activo='S'";
-        if($producto != '') $sql .= " AND producto LIKE '%$producto%'";
+        $sql .= $filtro;
         $sql .= " ORDER BY producto";
+        $sql .= " LIMIT $offset, $tamPag";
         
         $productos = $this->dao->consultar($sql);
         
@@ -38,6 +54,14 @@ class CProductos extends Controlador{
                       </td></tr>';
             }
             echo '</tbody></table></div>';
+            
+            // Renderizar la vista de paginación
+            Vista::render('vistas/VPaginacion.php', array(
+                'totalRegistros' => $totalRegistros,
+                'pagActual' => $pagina,
+                'tamPag' => $tamPag,
+                'funcionCallback' => 'buscarProductos'
+            ));
         }else{
             echo '<div class="alert alert-warning">No se encontraron productos</div>';
         }

@@ -2,6 +2,12 @@
 // Controlador Frontal - Recibe todas las peticiones y las dirige al controlador correcto
 session_start();
 
+// Strict Access Control
+if(!isset($_SESSION['login']) || $_SESSION['login']==''){
+    header("Location: login.php");
+    exit;
+}
+
 // Recogemos todos los datos que llegan por URL (GET), Formularios (POST) o Archivos (FILES)
 // y los juntamos en una sola variable para manejarlos más fácil
 $getPost = array_merge($_GET, $_POST, $_FILES);

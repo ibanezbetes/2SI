@@ -1,6 +1,7 @@
 // Busca productos aplicando los filtros del formulario
-function buscarProductos() {
-  buscar("Productos", "getVistaListadoProductos", "formularioBuscarProducto", "capaResultadosProductos");
+function buscarProductos(pagina = 1, tamPag = 5) {
+  const params = `pagina=${pagina}&tam_pag=${tamPag}`;
+  buscar("Productos", "getVistaListadoProductos", "formularioBuscarProducto", "capaResultadosProductos", params);
 }
 
 function verTodosProductos() {

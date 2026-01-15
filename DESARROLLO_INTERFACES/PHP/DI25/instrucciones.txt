@@ -1,0 +1,10 @@
+URL: [Tu URL de Hosting]
+Usuario: admin
+Contraseña: 123
+
+Instrucciones de Instalación:
+1. Crear la base de datos `db_di25`.
+2. Importar `modelos/usuarios y productos 2025 09 29.sql`.
+3. Importar `modelos/pedidos.sql` para crear las tablas de pedidos.
+4. Configurar `modelos/DAO.php` con las credenciales de la BD.
+5. La aplicación requiere inicio de sesión y es compatible con PWA.

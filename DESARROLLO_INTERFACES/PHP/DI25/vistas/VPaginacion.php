@@ -37,25 +37,25 @@ $pagSiguiente = $pagActual + 1;
                 
                 <!-- Primera Página -->
                 <li class="page-item <?php echo ($pagActual <= 1) ? 'disabled' : ''; ?>">
-                    <button class="page-link" onclick="<?php echo $funcionCallback; ?>(1, <?php echo $tamPag; ?>)" title="Primera página">
+                    <button type="button" class="page-link" onclick="<?php echo $funcionCallback; ?>(1, <?php echo $tamPag; ?>)" title="Primera página">
                         &laquo;&laquo;
                     </button>
                 </li>
 
                 <!-- Página Anterior -->
                 <li class="page-item <?php echo ($pagActual <= 1) ? 'disabled' : ''; ?>">
-                    <button class="page-link" onclick="<?php echo $funcionCallback; ?>(<?php echo $pagAnterior; ?>, <?php echo $tamPag; ?>)" title="Anterior">
+                    <button type="button" class="page-link" onclick="<?php echo $funcionCallback; ?>(<?php echo $pagAnterior; ?>, <?php echo $tamPag; ?>)" title="Anterior">
                         &laquo;
                     </button>
                 </li>
 
                 <!-- Selector de página actual manual -->
                  <li class="page-item active">
-                    <span class="page-link bg-light text-dark border-0">
+                    <span class="page-link border-0">
                         Pág. 
                         <input type="number" 
-                               class="form-control d-inline-block px-1 py-0 text-center" 
-                               style="width: 50px; height: 20px; font-size: 0.8rem;"
+                               class="d-inline-block px-1 py-0 text-center" 
+                               style="width: 50px; height: 20px; font-size: 0.8rem; border-radius: 3px;"
                                value="<?php echo $pagActual; ?>" 
                                min="1" 
                                max="<?php echo $totalPaginas; ?>"
@@ -66,14 +66,14 @@ $pagSiguiente = $pagActual + 1;
 
                 <!-- Página Siguiente -->
                 <li class="page-item <?php echo ($pagActual >= $totalPaginas) ? 'disabled' : ''; ?>">
-                    <button class="page-link" onclick="<?php echo $funcionCallback; ?>(<?php echo $pagSiguiente; ?>, <?php echo $tamPag; ?>)" title="Siguiente">
+                    <button type="button" class="page-link" onclick="<?php echo $funcionCallback; ?>(<?php echo $pagSiguiente; ?>, <?php echo $tamPag; ?>)" title="Siguiente">
                         &raquo;
                     </button>
                 </li>
 
                 <!-- Última Página -->
                 <li class="page-item <?php echo ($pagActual >= $totalPaginas) ? 'disabled' : ''; ?>">
-                    <button class="page-link" onclick="<?php echo $funcionCallback; ?>(<?php echo $totalPaginas; ?>, <?php echo $tamPag; ?>)" title="Última página">
+                    <button type="button" class="page-link" onclick="<?php echo $funcionCallback; ?>(<?php echo $totalPaginas; ?>, <?php echo $tamPag; ?>)" title="Última página">
                         &raquo;&raquo;
                     </button>
                 </li>
@@ -84,8 +84,8 @@ $pagSiguiente = $pagActual + 1;
     <!-- Selector de registros por página -->
     <div class="col-md-4 text-end">
         <div class="input-group input-group-sm justify-content-end">
-            <label class="input-group-text bg-transparent border-0" for="tamPagSelector">Resultados por pág:</label>
-            <select class="form-select form-select-sm" 
+            <label class="input-group-text bg-transparent border-0 text-white" for="tamPagSelector">Resultados por pág:</label>
+            <select class="form-select form-select-sm bg-dark text-white border-secondary" 
                     id="tamPagSelector" 
                     style="max-width: 70px;"
                     onchange="<?php echo $funcionCallback; ?>(1, this.value)">
