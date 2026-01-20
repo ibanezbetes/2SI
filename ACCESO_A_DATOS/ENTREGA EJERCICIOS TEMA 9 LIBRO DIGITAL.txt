@@ -1,0 +1,154 @@
+---------------------------------------------------------
+-------- ENTREGA EJERCICIOS TEMA 9 LIBRO DIGITAL --------
+---------------------------------------------------------
+
+SET SERVEROUTPUT ON;
+
+---------------------------------------------------------
+-- EJERCICIO 1: Procedimiento Sumar (Formato Apuntes)
+---------------------------------------------------------
+CREATE OR REPLACE PROCEDURE Proc_Sumar(
+    p_num1 IN NUMBER DEFAULT 0, 
+    p_num2 IN NUMBER DEFAULT 0
+) 
+AS
+/* Zona de declaración de variables */
+   v_resultado NUMBER;
+
+BEGIN
+/* Zona de código */
+   v_resultado := p_num1 + p_num2;
+   DBMS_OUTPUT.PUT_LINE('La suma es: ' || v_resultado);
+
+EXCEPTION
+/* Zona de manejo de errores */
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error desconocido en el procedimiento sumar !!!');
+END Proc_Sumar;
+/
+
+---------------------------------------------------------
+-- EJERCICIO 2: Procedimiento Invertir (Formato Apuntes)
+---------------------------------------------------------
+CREATE OR REPLACE PROCEDURE Proc_Invertir(
+    p_cadena IN VARCHAR2 DEFAULT 'PRUEBA'
+) 
+AS
+/* Zona de declaración de variables */
+   v_resultado VARCHAR2(100); 
+   v_longitud  NUMBER;
+
+BEGIN
+/* Zona de código */
+   v_longitud := LENGTH(p_cadena);
+   
+   FOR i IN REVERSE 1..v_longitud LOOP
+      v_resultado := v_resultado || SUBSTR(p_cadena, i, 1);
+   END LOOP;
+   
+   DBMS_OUTPUT.PUT_LINE('Texto al revés: ' || v_resultado);
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error procesando la cadena !!!');
+END Proc_Invertir;
+/
+
+---------------------------------------------------------
+-- EJERCICIO 3: Funciones (Sumar e Invertir)
+---------------------------------------------------------
+
+-- 3.1 Función Sumar
+CREATE OR REPLACE FUNCTION Func_Sumar(
+    p_num1 IN NUMBER DEFAULT 0, 
+    p_num2 IN NUMBER DEFAULT 0
+) 
+RETURN NUMBER
+AS
+BEGIN
+/* Zona de código */
+   RETURN (p_num1 + p_num2);
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error en la función sumar !!!');
+      RETURN NULL; 
+END Func_Sumar;
+/
+
+-- 3.2 Función Invertir
+CREATE OR REPLACE FUNCTION Func_Invertir(
+    p_cadena IN VARCHAR2 DEFAULT 'PRUEBA'
+) 
+RETURN VARCHAR2
+AS
+/* Zona de declaración de variables */
+   v_resultado VARCHAR2(100);
+
+BEGIN
+/* Zona de código */
+   FOR i IN REVERSE 1..LENGTH(p_cadena) LOOP
+      v_resultado := v_resultado || SUBSTR(p_cadena, i, 1);
+   END LOOP;
+
+   RETURN v_resultado; 
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error en la función invertir !!!');
+      RETURN NULL;
+END Func_Invertir;
+/
+
+---------------------------------------------------------
+-- EJERCICIO 4: Función Fecha a Año
+---------------------------------------------------------
+CREATE OR REPLACE FUNCTION Func_Anio(
+    p_fecha IN DATE DEFAULT SYSDATE
+) 
+RETURN NUMBER
+AS
+/* Zona de declaración de variables */
+   v_anio NUMBER(4);
+
+BEGIN
+/* Zona de código */
+   v_anio := TO_NUMBER(TO_CHAR(p_fecha, 'YYYY'));
+   RETURN v_anio;
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error: Fecha no válida !!!');
+      RETURN -1; -- Devuelvo -1 en caso de error
+END Func_Anio;
+/
+
+---------------------------------------------------------
+-- EJERCICIO 5: Bloque PL/SQL de prueba
+---------------------------------------------------------
+DECLARE
+/* Zona de declaración de variables */
+   v_fecha_prueba DATE := TO_DATE('15/05/2023', 'DD/MM/YYYY');
+   v_return       NUMBER(4);
+
+BEGIN
+/* Zona de código */
+   
+   -- Prueba 1: Pasando una fecha concreta
+   v_return := Func_Anio(v_fecha_prueba);
+
+   IF (v_return = -1) THEN
+      DBMS_OUTPUT.PUT_LINE('ERROR !!! La función ha fallado.');
+   ELSE
+      DBMS_OUTPUT.PUT_LINE('El año de la fecha dada es: ' || v_return);
+   END IF;
+   
+   -- Prueba 2: Usando el valor DEFAULT (SYSDATE)
+   v_return := Func_Anio(); 
+   DBMS_OUTPUT.PUT_LINE('El año actual (por defecto) es: ' || v_return);
+
+EXCEPTION
+   WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Error fatal en el bloque principal !!!');
+END;
+/
