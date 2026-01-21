@@ -1,38 +1,101 @@
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
-// Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
-// then press Enter. You can now see whitespace characters in your code.
 public class Main {
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
         try {
-            int resultado;
-            System.out.println("Cliente intentando conectar");
-            //Socket skCliente = new Socket("192.168.104.53", 5000);
-            //Socket skCliente = new Socket("127.0.0.1", 5000);
+            System.out.println("Intentando conectar con el servidor...");
+            // 1. Apertura del Socket de Cliente (localhost puerto 5000)
             Socket skCliente = new Socket("localhost", 5000);
-            System.out.println("Cliente conectado !!!");
+            System.out.println("Conectado al servidor.");
 
-            OutputStream aux = skCliente.getOutputStream();
-            DataOutputStream flujo_salida = new DataOutputStream(aux);
-            InputStream aux2 = skCliente.getInputStream();
-            DataInputStream flujo_entrada = new DataInputStream(aux2);
-            /*System.out.println("Voy a pedir la operación 4");
-            flujo_salida.writeInt(4);*/
+            // 2. Creación de Streams
+            DataOutputStream flujo_salida = new DataOutputStream(skCliente.getOutputStream());
+            DataInputStream flujo_entrada = new DataInputStream(skCliente.getInputStream());
 
-            System.out.println("Voy a pedir la operación 1");
-            flujo_salida.writeInt(1);
-            System.out.println("Operación 1 pedida !!!");
-            flujo_salida.writeInt(10);
-            System.out.println("Operando 1 el 10 !!!");
-            flujo_salida.writeInt(17);
-            System.out.println("Operando 2 el 17 !!!");
-            System.out.println("Esperando respuesta del servidor");
-            resultado = flujo_entrada.readInt();
-            System.out.println("El resultado es: "+resultado);
+            boolean continuar = true;
+
+            while (continuar) {
+                // Menú de usuario (v2.0)
+                System.out.println("\n--- MENÚ SERVIDOR MATEMÁTICO ---");
+                System.out.println("1. Sumar dos números");
+                System.out.println("2. Raíz cuadrada");
+                System.out.println("3. Completar serie");
+                System.out.println("4. Desconectar");
+                System.out.print("Elige una opción: ");
+
+                int opcion = sc.nextInt();
+
+                // Enviamos la opción al servidor
+                flujo_salida.writeInt(opcion);
+
+                switch (opcion) {
+                    case 1:
+                        System.out.print("Introduce el primer número: ");
+                        int n1 = sc.nextInt();
+                        System.out.print("Introduce el segundo número: ");
+                        int n2 = sc.nextInt();
+
+                        // Enviamos datos
+                        flujo_salida.writeInt(n1);
+                        flujo_salida.writeInt(n2);
+
+                        // Recibimos respuesta
+                        int resultadoSuma = flujo_entrada.readInt();
+                        System.out.println("Resultado Servidor: " + resultadoSuma);
+                        break;
+
+                    case 2:
+                        System.out.print("Introduce el número para la raíz: ");
+                        double nRaiz = sc.nextDouble();
+
+                        // Enviamos datos (Double)
+                        flujo_salida.writeDouble(nRaiz);
+
+                        // Recibimos respuesta
+                        double resultadoRaiz = flujo_entrada.readDouble();
+                        System.out.println("Resultado Servidor: " + resultadoRaiz);
+                        break;
+
+                    case 3:
+                        System.out.print("¿Cuántos números tiene tu serie? (ej. 4): ");
+                        int cantidad = sc.nextInt();
+                        flujo_salida.writeInt(cantidad); // Enviamos tamaño
+
+                        System.out.println("Introduce los números uno a uno:");
+                        for(int i = 0; i < cantidad; i++) {
+                            System.out.print("Num " + (i+1) + ": ");
+                            int numSerie = sc.nextInt();
+                            flujo_salida.writeInt(numSerie); // Enviamos cada número
+                        }
+
+                        // Recibimos el siguiente de la serie
+                        int siguiente = flujo_entrada.readInt();
+                        System.out.println("El siguiente número de la serie es: " + siguiente);
+                        break;
+
+                    case 4:
+                        System.out.println("Desconectando...");
+                        continuar = false;
+                        break;
+
+                    default:
+                        System.out.println("Opción incorrecta.");
+                        break;
+                }
+            }
+
+            // 3. Cierre de recursos
+            flujo_entrada.close();
+            flujo_salida.close();
+            skCliente.close();
+            sc.close();
+
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error en la comunicación: " + e.getMessage());
         }
-
-        }
+    }
 }
