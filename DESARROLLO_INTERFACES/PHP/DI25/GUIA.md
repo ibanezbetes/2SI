@@ -7,21 +7,32 @@ Esta guía explica cómo funciona cada parte del código.
 ### Ejemplo: Buscar usuarios
 
 **Paso 1: Usuario hace clic en "Buscar Usuarios"**
+
 ```javascript
 // En js/usuarios.js
 function buscarUsuarios() {
-  buscar("Usuarios", "getVistaListadoUsuarios", "formularioBuscar", "capaResultadosBusqueda");
+  buscar(
+    "Usuarios",
+    "getVistaListadoUsuarios",
+    "formularioBuscar",
+    "capaResultadosBusqueda",
+  );
 }
 ```
 
 **Paso 2: Se envía petición AJAX**
+
 ```javascript
 // En js/utils.js
 function buscar(controlador, metodo, formulario, destino) {
   // Construir URL: CFrontal.php?controlador=Usuarios&metodo=getVistaListadoUsuarios&nombre=Juan
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
-  parametros += "&" + new URLSearchParams(new FormData(document.getElementById(formulario))).toString();
-  
+  parametros +=
+    "&" +
+    new URLSearchParams(
+      new FormData(document.getElementById(formulario)),
+    ).toString();
+
   // Enviar petición al servidor
   fetch("CFrontal.php?" + parametros)
     .then((res) => res.text())
@@ -33,6 +44,7 @@ function buscar(controlador, metodo, formulario, destino) {
 ```
 
 **Paso 3: CFrontal.php recibe la petición**
+
 ```php
 // En CFrontal.php
 $controlador = 'CUsuarios';  // De $_GET['controlador']
@@ -44,23 +56,25 @@ $objCont->getVistaListadoUsuarios($_GET);  // Ejecuta el método
 ```
 
 **Paso 4: El controlador consulta la base de datos**
+
 ```php
 // En controladores/CUsuarios.php
 public function getVistaListadoUsuarios($datos=array()){
     $nombre = $datos['nombre'];  // Obtener parámetro de búsqueda
-    
+
     // Construir consulta SQL
     $sql = "SELECT * FROM usuarios WHERE nombre LIKE '%$nombre%'";
-    
+
     // Ejecutar consulta
     $usuarios = $this->dao->consultar($sql);
-    
+
     // Generar HTML con los resultados
     echo '<table>...';
 }
 ```
 
 **Paso 5: DAO ejecuta la consulta**
+
 ```php
 // En modelos/DAO.php
 public function consultar($SQL){
@@ -81,6 +95,7 @@ JavaScript recibe el HTML y lo inserta en `capaResultadosBusqueda`.
 ## 2. Estructura de archivos
 
 ### CFrontal.php (Enrutador)
+
 ```php
 // Recibe: ?controlador=Usuarios&metodo=crearUsuario&nombre=Juan&...
 // Hace: Carga CUsuarios.php y ejecuta crearUsuario()
@@ -94,14 +109,15 @@ $obj->$metodo($_GET);  // Ejecuta el método con los parámetros
 ```
 
 ### Controladores (CUsuarios.php, CProductos.php)
+
 ```php
 class CUsuarios extends Controlador{
     private $dao;  // Objeto para acceder a la BD
-    
+
     public function __construct(){
         $this->dao = new DAO();  // Crear conexión a BD
     }
-    
+
     // Cada método es una acción que puede hacer el usuario
     public function crearUsuario($datos){
         // 1. Validar datos
@@ -113,18 +129,19 @@ class CUsuarios extends Controlador{
 ```
 
 ### Modelo (DAO.php)
+
 ```php
 class DAO{
     private $conexion;  // Conexión a MySQL
-    
+
     public function consultar($SQL){
         // Ejecuta SELECT y devuelve array de resultados
     }
-    
+
     public function insertar($SQL){
         // Ejecuta INSERT y devuelve el ID del nuevo registro
     }
-    
+
     public function actualizar($SQL){
         // Ejecuta UPDATE y devuelve filas afectadas
     }
@@ -132,6 +149,7 @@ class DAO{
 ```
 
 ### Vistas (VUsuariosPrincipal.php)
+
 ```php
 // Solo HTML, sin lógica
 echo '<form id="formularioBuscar">
@@ -141,25 +159,28 @@ echo '<form id="formularioBuscar">
 ```
 
 ### JavaScript (usuarios.js, productos.js, utils.js)
+
 ```javascript
 // Funciones que se ejecutan cuando el usuario hace clic
 
 function guardarUsuario() {
-    // 1. Obtener datos del formulario
-    const nombre = document.getElementById("nombreUsuario").value;
-    
-    // 2. Validar
-    if (!nombre) {
-        mostrarError("mensajesUsuario", "El nombre es obligatorio");
-        return;
-    }
-    
-    // 3. Enviar al servidor
-    fetch("CFrontal.php?controlador=Usuarios&metodo=crearUsuario&nombre=" + nombre)
-        .then(res => res.text())
-        .then(data => {
-            mostrarExito("mensajesUsuario", "Usuario creado");
-        });
+  // 1. Obtener datos del formulario
+  const nombre = document.getElementById("nombreUsuario").value;
+
+  // 2. Validar
+  if (!nombre) {
+    mostrarError("mensajesUsuario", "El nombre es obligatorio");
+    return;
+  }
+
+  // 3. Enviar al servidor
+  fetch(
+    "CFrontal.php?controlador=Usuarios&metodo=crearUsuario&nombre=" + nombre,
+  )
+    .then((res) => res.text())
+    .then((data) => {
+      mostrarExito("mensajesUsuario", "Usuario creado");
+    });
 }
 ```
 
@@ -168,43 +189,48 @@ function guardarUsuario() {
 ## 3. Conceptos clave
 
 ### AJAX (Asynchronous JavaScript And XML)
+
 Permite enviar y recibir datos del servidor sin recargar la página.
 
 **Sin AJAX** (antiguo):
+
 ```
 Usuario hace clic → Página se recarga completamente → Servidor devuelve nueva página
 ```
 
 **Con AJAX** (moderno):
+
 ```
 Usuario hace clic → JavaScript envía petición → Servidor devuelve solo los datos → JavaScript actualiza la página
 ```
 
 ### Fetch API
+
 ```javascript
 // Enviar petición GET
 fetch("CFrontal.php?controlador=Usuarios&metodo=obtenerUsuario&id=5")
-    .then(response => response.json())  // Convertir respuesta a JSON
-    .then(usuario => {
-        console.log(usuario.nombre);  // Usar los datos
-    });
+  .then((response) => response.json()) // Convertir respuesta a JSON
+  .then((usuario) => {
+    console.log(usuario.nombre); // Usar los datos
+  });
 
 // Enviar petición POST
 fetch("CFrontal.php", {
-    method: "POST",
-    body: new URLSearchParams({
-        controlador: "Usuarios",
-        metodo: "crearUsuario",
-        nombre: "Juan"
-    })
+  method: "POST",
+  body: new URLSearchParams({
+    controlador: "Usuarios",
+    metodo: "crearUsuario",
+    nombre: "Juan",
+  }),
 })
-    .then(response => response.text())
-    .then(mensaje => {
-        alert(mensaje);
-    });
+  .then((response) => response.text())
+  .then((mensaje) => {
+    alert(mensaje);
+  });
 ```
 
 ### FormData
+
 Obtiene todos los datos de un formulario automáticamente.
 
 ```javascript
@@ -225,11 +251,13 @@ const params = new URLSearchParams(datos).toString();
 ### Patrón MVC
 
 **Modelo**: Gestiona los datos (base de datos)
+
 ```php
 $usuarios = $dao->consultar("SELECT * FROM usuarios");
 ```
 
 **Vista**: Muestra los datos (HTML)
+
 ```php
 echo '<table>';
 foreach($usuarios as $u){
@@ -239,6 +267,7 @@ echo '</table>';
 ```
 
 **Controlador**: Coordina Modelo y Vista
+
 ```php
 public function listarUsuarios(){
     $usuarios = $this->dao->consultar("SELECT * FROM usuarios");  // Modelo
@@ -251,21 +280,23 @@ public function listarUsuarios(){
 ## 4. Validaciones
 
 ### En JavaScript (cliente)
+
 ```javascript
 function validarEmail(email) {
-    // Expresión regular: algo@algo.algo
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
+  // Expresión regular: algo@algo.algo
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
 }
 
 // Uso
 if (!validarEmail(mail)) {
-    mostrarError("mensajes", "Email no válido");
-    return;  // No enviar al servidor
+  mostrarError("mensajes", "Email no válido");
+  return; // No enviar al servidor
 }
 ```
 
 ### En PHP (servidor)
+
 ```php
 if(empty($nombre) || empty($email)){
     echo '<div class="alert alert-danger">Campos obligatorios</div>';
@@ -280,7 +311,9 @@ if(empty($nombre) || empty($email)){
 ## 5. Seguridad (para mejorar)
 
 ### SQL Injection
+
 **Problema actual**:
+
 ```php
 $sql = "SELECT * FROM usuarios WHERE nombre = '$nombre'";
 // Si $nombre = "'; DROP TABLE usuarios; --"
@@ -288,6 +321,7 @@ $sql = "SELECT * FROM usuarios WHERE nombre = '$nombre'";
 ```
 
 **Solución**: Usar prepared statements
+
 ```php
 $stmt = $conexion->prepare("SELECT * FROM usuarios WHERE nombre = ?");
 $stmt->bind_param("s", $nombre);
@@ -295,12 +329,15 @@ $stmt->execute();
 ```
 
 ### Contraseñas
+
 **Problema actual**:
+
 ```php
 $pass = md5($password);  // MD5 es inseguro
 ```
 
 **Solución**: Usar password_hash()
+
 ```php
 $pass = password_hash($password, PASSWORD_DEFAULT);
 
@@ -315,13 +352,15 @@ if(password_verify($passwordIngresado, $passGuardado)){
 ## 6. Debugging (encontrar errores)
 
 ### En JavaScript
+
 ```javascript
-console.log("Valor de nombre:", nombre);  // Ver en Consola del navegador (F12)
-console.table(usuarios);  // Ver array en formato tabla
-debugger;  // Pausar ejecución (con F12 abierto)
+console.log("Valor de nombre:", nombre); // Ver en Consola del navegador (F12)
+console.table(usuarios); // Ver array en formato tabla
+debugger; // Pausar ejecución (con F12 abierto)
 ```
 
 ### En PHP
+
 ```php
 var_dump($usuarios);  // Ver contenido de variable
 die("Llegó hasta aquí");  // Detener ejecución
@@ -329,6 +368,7 @@ error_log("Error: " . $mensaje);  // Escribir en log de errores
 ```
 
 ### En MySQL
+
 ```sql
 -- Probar consultas directamente en phpMyAdmin
 SELECT * FROM usuarios WHERE nombre LIKE '%Juan%';
@@ -339,7 +379,7 @@ SELECT * FROM usuarios WHERE nombre LIKE '%Juan%';
 ## 7. Consejos
 
 1. **Usa nombres descriptivos**
-   - ❌ `function f1(x)` 
+   - ❌ `function f1(x)`
    - ✅ `function buscarUsuarios(nombre)`
 
 2. **Divide el código en funciones pequeñas**

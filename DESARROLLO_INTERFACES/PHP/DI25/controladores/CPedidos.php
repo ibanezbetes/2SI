@@ -22,7 +22,7 @@ class CPedidos extends Controlador{
         $tamPag = isset($tam_pag) ? (int)$tam_pag : 15;
         
         // 1. Count
-        $sqlCount = "SELECT COUNT(*) as total FROM pedidos p JOIN usuarios u ON p.idUsuario = u.idUsuario WHERE p.activo='S'";
+        $sqlCount = "SELECT COUNT(*) as total FROM pedidos p JOIN usuarios u ON p.idUsuario = u.idUsuario WHERE 1=1";
         $filtro = "";
         if($usuario != '') $filtro .= " AND u.nombre LIKE '%$usuario%'";
         if($fecha != '') $filtro .= " AND p.fecha = '$fecha'";
@@ -36,7 +36,7 @@ class CPedidos extends Controlador{
         $sql = "SELECT p.idPedido, p.fecha, p.total, p.estado, u.nombre, u.apellido1 
                 FROM pedidos p 
                 JOIN usuarios u ON p.idUsuario = u.idUsuario 
-                WHERE p.activo='S'";
+                WHERE 1=1";
         $sql .= $filtro;
         $sql .= " ORDER BY p.fecha DESC, p.idPedido DESC";
         $sql .= " LIMIT $offset, $tamPag";
@@ -108,7 +108,7 @@ class CPedidos extends Controlador{
             $total += ($d['cantidad'] * $d['precioUnitario']);
         }
         
-        $sql = "INSERT INTO pedidos (idUsuario, fecha, total, estado, activo) VALUES ('$idUsuario', '$fecha', '$total', '$estado', 'S')";
+        $sql = "INSERT INTO pedidos (idUsuario, fecha, total, estado) VALUES ('$idUsuario', '$fecha', '$total', '$estado')";
         $idPedido = $this->dao->insertar($sql);
         
         if($idPedido > 0){
@@ -129,10 +129,38 @@ class CPedidos extends Controlador{
     // I'll implement a simple Update that updates Header.
     public function actualizarPedido($datos=array()){
         extract($datos);
-        // ... logic similar to Usuarios ...
-        $sql = "UPDATE pedidos SET fecha='$fecha', estado='$estado' WHERE idPedido=$idPedido";
-        $this->dao->actualizar($sql);
-        echo '<div class="alert alert-success">Pedido actualizado</div>';
+        
+        if(empty($idPedido) || empty($idUsuario) || empty($fecha)){
+             echo '<div class="alert alert-danger">Datos incompletos</div>'; return;
+        }
+        
+        $detallesArray = isset($detalles) ? json_decode($detalles, true) : [];
+        if(!is_array($detallesArray)) $detallesArray = [];
+        
+        // Recalculate Total
+        $total = 0;
+        foreach($detallesArray as $d){
+            $total += ($d['cantidad'] * $d['precioUnitario']);
+        }
+        
+        // 1. Update Header
+        $sql = "UPDATE pedidos SET fecha='$fecha', estado='$estado', total='$total', idUsuario='$idUsuario' WHERE idPedido=$idPedido";
+        $res = $this->dao->actualizar($sql);
+        
+        if($res >= 0){
+             // 2. Replace Details (Delete all and re-insert)
+             $this->dao->borrar("DELETE FROM pedidos_detalles WHERE idPedido=$idPedido");
+             
+             foreach($detallesArray as $d){
+                $sqlDet = "INSERT INTO pedidos_detalles (idPedido, idProducto, cantidad, precioUnitario) 
+                           VALUES ($idPedido, {$d['idProducto']}, {$d['cantidad']}, {$d['precioUnitario']})";
+                $this->dao->insertar($sqlDet);
+             }
+             
+             echo '<div class="alert alert-success">Pedido actualizado exitosamente</div>';
+        }else{
+             echo '<div class="alert alert-danger">Error al actualizar cabecera</div>';
+        }
     }
 
     public function getUsuariosJSON(){
