@@ -1,0 +1,60 @@
+CREA TU PRIMER CURSOR
+
+SET SERVEROUTPUT ON
+
+CREATE OR REPLACE FUNCTION Ver_Emple_Por_Salario_Dept (
+    p_Num_depto NUMBER, 
+    p_Salario_dpto NUMBER
+) RETURN NUMBER AS
+  CURSOR v_emple IS 
+    SELECT EMP_NO, APELLIDO 
+    FROM EMPLE 
+    WHERE DEPT_NO = p_Num_depto 
+      AND SALARIO > p_Salario_dpto;
+      
+  v_num_emple EMPLE.EMP_NO%TYPE;
+  v_apellido  EMPLE.APELLIDO%TYPE;
+  v_encontrados BOOLEAN := FALSE; 
+BEGIN
+  OPEN v_emple;
+  LOOP
+    FETCH v_emple INTO v_num_emple, v_apellido;
+    EXIT WHEN v_emple%NOTFOUND;
+    
+    v_encontrados := TRUE;
+    DBMS_OUTPUT.PUT_LINE('El empleado '|| v_num_emple ||' : '|| v_apellido || ' tiene más del salario indicado');
+  END LOOP;
+  CLOSE v_emple;
+
+  IF v_encontrados THEN
+      RETURN 1; 
+  ELSE
+      RETURN -1; 
+  END IF;
+
+EXCEPTION
+  WHEN OTHERS THEN
+      IF v_emple%ISOPEN THEN CLOSE v_emple; END IF;
+      RETURN -3; 
+END;
+/
+
+DECLARE
+  v_res NUMBER(1);
+BEGIN
+  v_res := Ver_Emple_Por_Salario_Dept(10, 1000);
+  
+  CASE 
+    WHEN v_res = 1 THEN
+        DBMS_OUTPUT.PUT_LINE('TODO OK !!!!');
+    
+    WHEN v_res = -1 THEN
+        DBMS_OUTPUT.PUT_LINE('NO HAY RESULTADOS PARA ESOS PARÁMETROS !!!!');
+        DBMS_OUTPUT.PUT_LINE('VOY A PROBAR CON DEPTO 10 Y SALARIO 4000 !!!!');
+        v_res := Ver_Emple_Por_Salario_Dept(10, 4000);
+        
+    WHEN v_res = -3 THEN
+        DBMS_OUTPUT.PUT_LINE('ERROR FATAL INDEFINIDO EN LA FUNCIÓN !!!!');
+  END CASE;
+END;
+/

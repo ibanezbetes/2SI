@@ -1,0 +1,230 @@
+EJERCICIO 1
+
+SQL
+
+CREATE OR REPLACE PROCEDURE sumar_numeros(num1 NUMBER, num2 NUMBER) IS
+  v_suma NUMBER;
+BEGIN
+  v_suma := num1 + num2;
+  DBMS_OUTPUT.PUT_LINE('La suma de ' || num1 || ' + ' || num2 || ' es: ' || v_suma);
+END;
+/
+-- Bloque anónimo para probarlo
+BEGIN
+  sumar_numeros(10, 25);
+END;
+/
+
+EJERCICIO 2
+
+SQL
+
+CREATE OR REPLACE PROCEDURE visualizar_reves(cadena VARCHAR2) IS
+  v_inversa VARCHAR2(100);
+BEGIN
+  -- Recorremos la cadena desde el final hasta el principio
+  FOR i IN REVERSE 1..LENGTH(cadena) LOOP
+    v_inversa := v_inversa || SUBSTR(cadena, i, 1);
+  END LOOP;
+  
+  DBMS_OUTPUT.PUT_LINE('Original: ' || cadena);
+  DBMS_OUTPUT.PUT_LINE('Inversa:  ' || v_inversa);
+END;
+/
+-- Prueba
+BEGIN
+  visualizar_reves('ORACLE');
+END;
+/
+
+EJERCICIO 3.1
+
+SQL
+
+CREATE OR REPLACE FUNCTION func_sumar(n1 NUMBER, n2 NUMBER) RETURN NUMBER IS
+BEGIN
+  RETURN n1 + n2;
+END;
+/
+
+EJERCICIO 3.2
+
+SQL
+
+CREATE OR REPLACE FUNCTION func_reves(cadena VARCHAR2) RETURN VARCHAR2 IS
+  v_res VARCHAR2(100) := '';
+BEGIN
+  FOR i IN REVERSE 1..LENGTH(cadena) LOOP
+    v_res := v_res || SUBSTR(cadena, i, 1);
+  END LOOP;
+  RETURN v_res;
+END;
+/
+
+EJERCICIO 4
+
+SQL
+
+CREATE OR REPLACE FUNCTION obtener_anio(p_fecha DATE) RETURN NUMBER IS
+BEGIN
+  -- Convertimos la fecha a caracter 'YYYY' y luego a número
+  RETURN TO_NUMBER(TO_CHAR(p_fecha, 'YYYY'));
+END;
+/
+
+EJERCICIO 5
+
+SQL
+
+DECLARE
+  v_fecha_test DATE := TO_DATE('25/12/2023', 'DD/MM/YYYY');
+  v_anio       NUMBER;
+BEGIN
+  v_anio := obtener_anio(v_fecha_test);
+  DBMS_OUTPUT.PUT_LINE('La fecha es ' || v_fecha_test);
+  DBMS_OUTPUT.PUT_LINE('El año extraído es: ' || v_anio);
+END;
+/
+
+EJERCICIO 6
+
+SQL
+
+CREATE OR REPLACE FUNCTION anios_completos(f_inicio DATE, f_fin DATE) RETURN NUMBER IS
+  v_meses NUMBER;
+BEGIN
+  -- MONTHS_BETWEEN devuelve la diferencia en meses. Dividimos por 12 y truncamos decimales.
+  v_meses := MONTHS_BETWEEN(f_fin, f_inicio);
+  RETURN TRUNC(v_meses / 12);
+END;
+/
+
+EJERCICIO 7
+
+SQL
+
+CREATE OR REPLACE FUNCTION calcular_trienios(f_inicio DATE, f_fin DATE) RETURN NUMBER IS
+  v_anios NUMBER;
+BEGIN
+  -- Llamamos a la función del ejercicio 6
+  v_anios := anios_completos(f_inicio, f_fin);
+  
+  -- Un trienio son 3 años
+  RETURN TRUNC(v_anios / 3);
+END;
+/
+
+EJERCICIO 8
+
+SQL
+
+CREATE OR REPLACE PROCEDURE sumar_cinco_numeros(
+    n1 NUMBER DEFAULT 0,
+    n2 NUMBER DEFAULT 0,
+    n3 NUMBER DEFAULT 0,
+    n4 NUMBER DEFAULT 0,
+    n5 NUMBER DEFAULT 0
+) IS
+  v_total NUMBER;
+BEGIN
+  v_total := n1 + n2 + n3 + n4 + n5;
+  DBMS_OUTPUT.PUT_LINE('La suma total es: ' || v_total);
+END;
+/
+-- Prueba enviando solo 3 números
+BEGIN
+  sumar_cinco_numeros(10, 20, 5); 
+END;
+/
+
+EJERCICIO 9
+
+SQL
+
+CREATE OR REPLACE FUNCTION filtrar_alfabeticos(cadena VARCHAR2) RETURN VARCHAR2 IS
+  v_nueva_cadena VARCHAR2(200) := '';
+  v_caracter     CHAR(1);
+BEGIN
+  FOR i IN 1..LENGTH(cadena) LOOP
+    v_caracter := SUBSTR(cadena, i, 1);
+    
+    -- Comprobamos si está en el rango A-Z o a-z
+    IF (v_caracter BETWEEN 'A' AND 'Z') OR (v_caracter BETWEEN 'a' AND 'z') THEN
+       v_nueva_cadena := v_nueva_cadena || v_caracter;
+    ELSE
+       v_nueva_cadena := v_nueva_cadena || ' '; -- Sustituir por blanco
+    END IF;
+  END LOOP;
+  
+  RETURN v_nueva_cadena;
+END;
+/
+-- Prueba
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(filtrar_alfabeticos('H0l4 Mund0!'));
+END;
+/
+
+EJERCICIO 10
+
+SQL
+
+CREATE OR REPLACE PROCEDURE borrar_empleado(p_emp_no NUMBER) IS
+BEGIN
+  DELETE FROM EMPLE WHERE emp_no = p_emp_no;
+  
+  IF SQL%FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Empleado ' || p_emp_no || ' eliminado correctamente.');
+    COMMIT; -- Confirmar cambios
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('No se encontró el empleado con número ' || p_emp_no);
+  END IF;
+END;
+/
+
+EJERCICIO 11
+
+SQL
+
+CREATE OR REPLACE PROCEDURE modificar_loc_depart(p_dept_no NUMBER, p_nueva_loc VARCHAR2) IS
+BEGIN
+  UPDATE DEPART 
+  SET loc = p_nueva_loc 
+  WHERE dept_no = p_dept_no;
+
+  IF SQL%FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Departamento ' || p_dept_no || ' actualizado a ' || p_nueva_loc);
+    COMMIT;
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('El departamento ' || p_dept_no || ' no existe.');
+  END IF;
+END;
+/
+
+EJERCICIO 12
+
+SQL
+
+DECLARE
+  CURSOR c_objetos IS
+    SELECT object_name, object_type, status 
+    FROM USER_OBJECTS
+    WHERE object_type IN ('PROCEDURE', 'FUNCTION')
+    ORDER BY object_type, object_name;
+    
+  v_nombre USER_OBJECTS.object_name%TYPE;
+  v_tipo   USER_OBJECTS.object_type%TYPE;
+  v_estado USER_OBJECTS.status%TYPE;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(RPAD('NOMBRE', 30) || RPAD('TIPO', 15) || 'ESTADO');
+  DBMS_OUTPUT.PUT_LINE('-------------------------------------------------------');
+  
+  OPEN c_objetos;
+  LOOP
+    FETCH c_objetos INTO v_nombre, v_tipo, v_estado;
+    EXIT WHEN c_objetos%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE(RPAD(v_nombre, 30) || RPAD(v_tipo, 15) || v_estado);
+  END LOOP;
+  CLOSE c_objetos;
+END;
+/
