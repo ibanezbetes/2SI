@@ -1,0 +1,103 @@
+--EJERCICIO 1: FUNCIÓN CON CONTROL DE PERMISOS
+
+CREATE OR REPLACE FUNCTION Ver_Emple_Por_Salario_Dept 
+(p_Num_depto NUMBER, p_Salario_dpto NUMBER) 
+RETURN NUMBER 
+AUTHID CURRENT_USER
+AS
+  v_num_emple EMPLE.EMP_NO%TYPE;
+  v_apellido  EMPLE.APELLIDO%TYPE;
+  
+-- Excepción para el error ORA-00942 (Tabla o vista no existe / o siin permisos)
+  e_sin_permisos EXCEPTION;
+  PRAGMA EXCEPTION_INIT(e_sin_permisos, -942);
+
+BEGIN
+  SELECT EMP_NO, APELLIDO INTO v_num_emple, v_apellido
+  FROM EMPLE
+  WHERE DEPT_NO = p_Num_depto AND SALARIO > p_Salario_dpto;
+  
+  DBMS_OUTPUT.PUT_LINE('El empleado '||v_apellido||' tiene el número: '||v_num_emple);
+  RETURN(1);
+
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN  
+     DBMS_OUTPUT.PUT_LINE('NO HAY RESULTADOS');
+     RETURN (-1);
+  WHEN TOO_MANY_ROWS THEN
+     DBMS_OUTPUT.PUT_LINE('EL SELECT DEVUELVE MÁS DE UNA FILA');
+     RETURN (-2);
+  WHEN e_sin_permisos THEN
+     DBMS_OUTPUT.PUT_LINE('ERROR: El usuario no tiene permisos sobre la tabla EMPLE');
+     RETURN (-4);
+  WHEN OTHERS THEN
+     DBMS_OUTPUT.PUT_LINE('ERROR INDEFINIDO: ' || SQLCODE);
+     RETURN (-3);
+END;
+/
+
+
+DECLARE
+  v_res NUMBER;
+BEGIN
+  v_res := Ver_Emple_Por_Salario_Dept(10, 1000);
+  
+  IF v_res = -4 THEN
+     DBMS_OUTPUT.PUT_LINE('TEST DE PERMISOS: No tienes acceso.');
+  ELSIF v_res = 1 THEN
+     DBMS_OUTPUT.PUT_LINE('TEST OK.');
+  ELSE
+     DBMS_OUTPUT.PUT_LINE('Resultado del test: ' || v_res);
+  END IF;
+END;
+/
+
+
+   PARTE 2: CREACIÓN DE USUARIO (ADMIN)
+
+   Ejecutar esto con SYSTEM o SYS para probar el error -4:
+
+   CREATE USER alumno_prueba IDENTIFIED BY 1234;
+   GRANT CONNECT, RESOURCE TO alumno_prueba;
+   -- Solo damos permiso de ejecución, NO de lectura sobre EMPLE
+   GRANT EXECUTE ON Ver_Emple_Por_Salario_Dept TO alumno_prueba;
+
+
+
+EJERCICIO 2: PROCEDIMIENTO MODIFICAR OFICIO
+
+CREATE OR REPLACE PROCEDURE Modificar_Oficio_Empleado 
+(p_num_emple NUMBER, p_nuevo_oficio VARCHAR2) 
+AS
+  v_oficio_antiguo EMPLE.OFICIO%TYPE;
+BEGIN
+  SELECT OFICIO INTO v_oficio_antiguo
+  FROM EMPLE
+  WHERE EMP_NO = p_num_emple;
+
+  UPDATE EMPLE
+  SET OFICIO = p_nuevo_oficio
+  WHERE EMP_NO = p_num_emple;
+  
+  COMMIT; 
+
+  DBMS_OUTPUT.PUT_LINE('--- CAMBIO REALIZADO ---');
+  DBMS_OUTPUT.PUT_LINE('Empleado: ' || p_num_emple);
+  DBMS_OUTPUT.PUT_LINE('Oficio Antiguo: ' || v_oficio_antiguo);
+  DBMS_OUTPUT.PUT_LINE('Oficio Nuevo:   ' || p_nuevo_oficio);
+
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+     DBMS_OUTPUT.PUT_LINE('ERROR: El empleado ' || p_num_emple || ' no existe.');
+  WHEN OTHERS THEN
+     DBMS_OUTPUT.PUT_LINE('ERROR INESPERADO: ' || SQLERRM);
+     ROLLBACK;
+END;
+/
+
+BEGIN
+    Modificar_Oficio_Empleado(7369, 'NUEVO_ROL');
+    
+    Modificar_Oficio_Empleado(9999, 'JEFE');
+END;
+/
