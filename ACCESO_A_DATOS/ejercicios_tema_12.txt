@@ -1,0 +1,283 @@
+SET SERVEROUTPUT ON;
+
+CREATE OR REPLACE PROCEDURE proc_empleados_alfabetico IS
+  CURSOR c_emple IS 
+    SELECT APELLIDO, FECHA_ALT 
+    FROM EMPLE 
+    ORDER BY APELLIDO;
+BEGIN
+  FOR r IN c_emple LOOP
+    DBMS_OUTPUT.PUT_LINE(r.APELLIDO || ' - ' || r.FECHA_ALT);
+  END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_empleados_por_dept IS
+  CURSOR c_depts IS
+    SELECT d.DNOMBRE, COUNT(e.EMP_NO) as NUM_EMPLEADOS
+    FROM DEPART d
+    LEFT JOIN EMPLE e ON d.DEPT_NO = e.DEPT_NO
+    GROUP BY d.DNOMBRE;
+BEGIN
+  FOR r IN c_depts LOOP
+    DBMS_OUTPUT.PUT_LINE('Departamento: ' || r.DNOMBRE || ' - Empleados: ' || r.NUM_EMPLEADOS);
+  END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_top_5_salarios IS
+  CURSOR c_top IS
+    SELECT * FROM (
+      SELECT APELLIDO, SALARIO 
+      FROM EMPLE 
+      ORDER BY SALARIO DESC
+    ) WHERE ROWNUM <= 5;
+BEGIN
+  FOR r IN c_top LOOP
+    DBMS_OUTPUT.PUT_LINE(r.APELLIDO || ': ' || r.SALARIO);
+  END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_bajos_salarios_oficio IS
+  CURSOR c_oficios IS
+    SELECT DISTINCT OFICIO FROM EMPLE;
+    
+  CURSOR c_emp_oficio (p_oficio VARCHAR2) IS
+    SELECT APELLIDO, SALARIO
+    FROM EMPLE
+    WHERE OFICIO = p_oficio
+    ORDER BY SALARIO ASC;
+    
+  v_count NUMBER;
+BEGIN
+  FOR o IN c_oficios LOOP
+    DBMS_OUTPUT.PUT_LINE('Oficio: ' || o.OFICIO);
+    v_count := 0;
+    FOR e IN c_emp_oficio(o.OFICIO) LOOP
+      DBMS_OUTPUT.PUT_LINE('  ' || e.APELLIDO || ': ' || e.SALARIO);
+      v_count := v_count + 1;
+      EXIT WHEN v_count = 2;
+    END LOOP;
+  END LOOP;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_insertar_dept(
+  p_dnombre VARCHAR2, 
+  p_localidad VARCHAR2
+) IS
+  v_max_dept NUMBER;
+  v_new_dept NUMBER;
+BEGIN
+  SELECT NVL(MAX(DEPT_NO), 0) INTO v_max_dept FROM DEPART;
+  v_new_dept := TRUNC(v_max_dept, -1) + 10;
+  
+  INSERT INTO DEPART (DEPT_NO, DNOMBRE, LOC) 
+  VALUES (v_new_dept, p_dnombre, p_localidad);
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Departamento insertado con ID: ' || v_new_dept);
+  
+EXCEPTION
+  WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.PUT_LINE('Error: El departamento ya existe.');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_subida_salarial_dept(
+  p_dept_no NUMBER,
+  p_importe NUMBER,
+  p_porcentaje NUMBER
+) IS
+BEGIN
+  UPDATE EMPLE
+  SET SALARIO = SALARIO + GREATEST(p_importe, (SALARIO * p_porcentaje / 100))
+  WHERE DEPT_NO = p_dept_no;
+  
+  IF SQL%ROWCOUNT = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('No se encontraron empleados en el departamento ' || p_dept_no);
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Salarios actualizados para ' || SQL%ROWCOUNT || ' empleados.');
+    COMMIT;
+  END IF;
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Error al actualizar salarios: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_subida_media_oficio IS
+  CURSOR c_medias IS
+    SELECT OFICIO, AVG(SALARIO) as MEDIA
+    FROM EMPLE
+    GROUP BY OFICIO;
+BEGIN
+  FOR m IN c_medias LOOP
+    UPDATE EMPLE
+    SET SALARIO = SALARIO + ((m.MEDIA - SALARIO) * 0.5)
+    WHERE OFICIO = m.OFICIO
+    AND SALARIO < m.MEDIA;
+  END LOOP;
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Proceso de actualización completado.');
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Error en la transacción: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_simular_liquidacion IS
+  v_trienios NUMBER;
+  v_responsabilidad NUMBER;
+  v_comision NUMBER;
+  v_total NUMBER;
+  v_subordinados NUMBER;
+  
+  CURSOR c_emple IS
+    SELECT * FROM EMPLE ORDER BY APELLIDO;
+BEGIN
+  FOR r IN c_emple LOOP
+    v_trienios := TRUNC(MONTHS_BETWEEN(SYSDATE, r.FECHA_ALT) / 12 / 3) * 50;
+    
+    SELECT COUNT(*) INTO v_subordinados FROM EMPLE WHERE DIR = r.EMP_NO;
+    v_responsabilidad := v_subordinados * 100;
+    
+    v_comision := NVL(r.COMISION, 0);
+    v_total := r.SALARIO + v_trienios + v_responsabilidad + v_comision;
+    
+    DBMS_OUTPUT.PUT_LINE('****************************************');
+    DBMS_OUTPUT.PUT_LINE('Liquidación del empleado    : ' || r.APELLIDO);
+    DBMS_OUTPUT.PUT_LINE('Dpto                        : ' || r.DEPT_NO);
+    DBMS_OUTPUT.PUT_LINE('Oficio                      : ' || r.OFICIO);
+    DBMS_OUTPUT.PUT_LINE('Salario                     : ' || r.SALARIO);
+    DBMS_OUTPUT.PUT_LINE('Trienios                    : ' || v_trienios);
+    DBMS_OUTPUT.PUT_LINE('Comp. responsabilidad       : ' || v_responsabilidad);
+    DBMS_OUTPUT.PUT_LINE('Comisión                    : ' || v_comision);
+    DBMS_OUTPUT.PUT_LINE('****************************************');
+    DBMS_OUTPUT.PUT_LINE('Total                       : ' || v_total);
+    DBMS_OUTPUT.PUT_LINE('****************************************');
+  END LOOP;
+END;
+/
+
+DROP TABLE T_liquidacion;
+CREATE TABLE T_liquidacion (
+  apellido VARCHAR2(50),
+  departamento NUMBER(2),
+  oficio VARCHAR2(20),
+  salario NUMBER,
+  trienios NUMBER,
+  comp_responsabilidad NUMBER,
+  comision NUMBER,
+  total NUMBER
+);
+
+CREATE OR REPLACE PROCEDURE proc_guardar_liquidacion IS
+  v_trienios NUMBER;
+  v_responsabilidad NUMBER;
+  v_comision NUMBER;
+  v_total NUMBER;
+  v_subordinados NUMBER;
+  
+  CURSOR c_emple IS
+    SELECT * FROM EMPLE;
+BEGIN
+  FOR r IN c_emple LOOP
+    v_trienios := TRUNC(MONTHS_BETWEEN(SYSDATE, r.FECHA_ALT) / 12 / 3) * 50;
+    
+    SELECT COUNT(*) INTO v_subordinados FROM EMPLE WHERE DIR = r.EMP_NO;
+    v_responsabilidad := v_subordinados * 100;
+    
+    v_comision := NVL(r.COMISION, 0);
+    v_total := r.SALARIO + v_trienios + v_responsabilidad + v_comision;
+    
+    INSERT INTO T_liquidacion (apellido, departamento, oficio, salario, trienios, comp_responsabilidad, comision, total)
+    VALUES (r.APELLIDO, r.DEPT_NO, r.OFICIO, r.SALARIO, v_trienios, v_responsabilidad, v_comision, v_total);
+  END LOOP;
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Datos guardados en T_liquidacion correctamente.');
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Error al guardar liquidación: ' || SQLERRM);
+END;
+/
+
+CREATE OR REPLACE PROCEDURE proc_nuevo_pedido(
+  p_pedido_no NUMBER,
+  p_producto_no NUMBER,
+  p_cliente_no NUMBER,
+  p_unidades NUMBER,
+  p_fecha_pedido DATE DEFAULT SYSDATE
+) IS
+  v_precio NUMBER;
+  v_stock NUMBER;
+  v_limite NUMBER;
+  v_debe NUMBER;
+  v_vendedor NUMBER;
+  v_total_pedido NUMBER;
+  e_stock_insuficiente EXCEPTION;
+  e_limite_superado EXCEPTION;
+BEGIN
+  SELECT PRECIO_ACTUAL, STOCK_DISPONIBLE INTO v_precio, v_stock
+  FROM PRODUCTOS08 WHERE PRODUCTO_NO = p_producto_no;
+  
+  IF v_stock < p_unidades THEN
+    RAISE e_stock_insuficiente;
+  END IF;
+  
+  SELECT LIMITE_CREDITO, DEBE, VENDEDOR_NO INTO v_limite, v_debe, v_vendedor
+  FROM CLIENTES08 WHERE CLIENTE_NO = p_cliente_no;
+  
+  v_total_pedido := v_precio * p_unidades;
+  
+  IF (v_debe + v_total_pedido) > v_limite THEN
+    RAISE e_limite_superado;
+  END IF;
+  
+  INSERT INTO PEDIDOS08 (PEDIDO_NO, PRODUCTO_NO, CLIENTE_NO, UNIDADES, FECHA_PEDIDO)
+  VALUES (p_pedido_no, p_producto_no, p_cliente_no, p_unidades, NVL(p_fecha_pedido, SYSDATE));
+  
+  UPDATE CLIENTES08 
+  SET DEBE = DEBE + v_total_pedido
+  WHERE CLIENTE_NO = p_cliente_no;
+  
+  UPDATE PRODUCTOS08
+  SET STOCK_DISPONIBLE = STOCK_DISPONIBLE - p_unidades
+  WHERE PRODUCTO_NO = p_producto_no;
+  
+  IF v_vendedor IS NOT NULL THEN
+    UPDATE EMPLE
+    SET COMISION = NVL(COMISION, 0) + (v_total_pedido * 0.05)
+    WHERE EMP_NO = v_vendedor;
+  END IF;
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Pedido realizado con éxito.');
+  
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Producto o Cliente no encontrado.');
+    ROLLBACK;
+  WHEN e_stock_insuficiente THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Stock insuficiente.');
+    ROLLBACK;
+  WHEN e_limite_superado THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Límite de crédito del cliente superado.');
+    ROLLBACK;
+  WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.PUT_LINE('Error: El número de pedido ya existe.');
+    ROLLBACK;
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
+    ROLLBACK;
+END;
+/
