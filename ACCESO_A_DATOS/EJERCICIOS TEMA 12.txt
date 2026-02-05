@@ -1,0 +1,323 @@
+SET SERVEROUTPUT ON;
+
+-- 1. Listado alfabético de empleados
+CREATE OR REPLACE PROCEDURE listar_empleados_alfabetico IS
+  -- Renombramos el cursor y las variables para personalizarlo
+  CURSOR cur_trabajadores IS 
+    SELECT APELLIDO, FECHA_ALT 
+    FROM EMPLE 
+    ORDER BY APELLIDO;
+BEGIN
+  FOR fila IN cur_trabajadores LOOP
+    -- Cambiamos ligeramente el formato de salida
+    DBMS_OUTPUT.PUT_LINE('Empl: ' || fila.APELLIDO || ' [Alta: ' || fila.FECHA_ALT || ']');
+  END LOOP;
+END;
+/
+
+-- 2. Empleados por departamento (con LEFT JOIN)
+CREATE OR REPLACE PROCEDURE contar_empleados_dept IS
+  CURSOR cur_dept_stats IS
+    SELECT d.DNOMBRE, COUNT(e.EMP_NO) as TOTAL
+    FROM DEPART d
+    LEFT JOIN EMPLE e ON d.DEPT_NO = e.DEPT_NO
+    GROUP BY d.DNOMBRE;
+BEGIN
+  FOR dato IN cur_dept_stats LOOP
+    DBMS_OUTPUT.PUT_LINE('Dept: ' || dato.DNOMBRE || ' -> N. Empleados: ' || dato.TOTAL);
+  END LOOP;
+END;
+/
+
+-- 3. Top 5 mejores salarios
+CREATE OR REPLACE PROCEDURE ver_top_5_salarios IS
+  CURSOR cur_mejores_pagados IS
+    SELECT * FROM (
+      SELECT APELLIDO, SALARIO 
+      FROM EMPLE 
+      ORDER BY SALARIO DESC
+    ) WHERE ROWNUM <= 5;
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('--- TOP 5 SALARIOS ---');
+  FOR emp IN cur_mejores_pagados LOOP
+    DBMS_OUTPUT.PUT_LINE(emp.APELLIDO || ' gana ' || emp.SALARIO || ' euros.');
+  END LOOP;
+END;
+/
+
+-- 4. Los 2 peores salarios por cada oficio
+CREATE OR REPLACE PROCEDURE bajos_salarios_por_oficio IS
+  -- Cursor principal para sacar los oficios
+  CURSOR cur_lista_oficios IS
+    SELECT DISTINCT OFICIO FROM EMPLE;
+    
+  -- Cursor parametrizado para buscar empleados por oficio
+  CURSOR cur_emp_x_oficio (v_oficio_buscado VARCHAR2) IS
+    SELECT APELLIDO, SALARIO
+    FROM EMPLE
+    WHERE OFICIO = v_oficio_buscado
+    ORDER BY SALARIO ASC;
+    
+  v_contador NUMBER;
+BEGIN
+  FOR reg_oficio IN cur_lista_oficios LOOP
+    DBMS_OUTPUT.PUT_LINE('>>> Categoría: ' || reg_oficio.OFICIO);
+    v_contador := 0;
+    
+    FOR reg_emp IN cur_emp_x_oficio(reg_oficio.OFICIO) LOOP
+      DBMS_OUTPUT.PUT_LINE('    ' || reg_emp.APELLIDO || ' (' || reg_emp.SALARIO || ')');
+      v_contador := v_contador + 1;
+      -- Salimos del bucle si ya hemos mostrado 2
+      EXIT WHEN v_contador >= 2;
+    END LOOP;
+  END LOOP;
+END;
+/
+
+-- 5. Insertar Departamento nuevo
+CREATE OR REPLACE PROCEDURE insertar_nuevo_dept(
+  p_nombre_dept VARCHAR2, 
+  p_ciudad VARCHAR2
+) IS
+  v_ultimo_id NUMBER;
+  v_nuevo_id NUMBER;
+BEGIN
+  -- Calculamos el ID: máximo actual + 10 (truncado por si acaso)
+  SELECT NVL(MAX(DEPT_NO), 0) INTO v_ultimo_id FROM DEPART;
+  v_nuevo_id := TRUNC(v_ultimo_id, -1) + 10;
+  
+  INSERT INTO DEPART (DEPT_NO, DNOMBRE, LOC) 
+  VALUES (v_nuevo_id, p_nombre_dept, p_ciudad);
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Éxito: Creado departamento ' || p_nombre_dept || ' con ID ' || v_nuevo_id);
+  
+EXCEPTION
+  WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.PUT_LINE('Fallo: Ese departamento ya existe en la BD.');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error desconocido: ' || SQLERRM);
+END;
+/
+
+-- 6. Subida salarial por departamento (Importe fijo o porcentaje)
+CREATE OR REPLACE PROCEDURE subir_salario_dept(
+  p_num_dep NUMBER,
+  p_aumento_fijo NUMBER,
+  p_porcentaje_min NUMBER
+) IS
+BEGIN
+  -- Actualizamos usando GREATEST para elegir el mayor valor entre el fijo y el %
+  UPDATE EMPLE
+  SET SALARIO = SALARIO + GREATEST(p_aumento_fijo, (SALARIO * p_porcentaje_min / 100))
+  WHERE DEPT_NO = p_num_dep;
+  
+  IF SQL%ROWCOUNT = 0 THEN
+    DBMS_OUTPUT.PUT_LINE('Aviso: El departamento ' || p_num_dep || ' no tiene empleados.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Se han actualizado ' || SQL%ROWCOUNT || ' salarios.');
+    COMMIT;
+  END IF;
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Error crítico: ' || SQLERRM);
+END;
+/
+
+-- 7. Igualar salarios a la media del oficio
+CREATE OR REPLACE PROCEDURE ajustar_salarios_media IS
+  CURSOR cur_promedios IS
+    SELECT OFICIO, AVG(SALARIO) as SALARIO_MEDIO
+    FROM EMPLE
+    GROUP BY OFICIO;
+BEGIN
+  FOR dato IN cur_promedios LOOP
+    -- Solo subimos a los que cobran menos de la media, sumándoles la mitad de la diferencia
+    UPDATE EMPLE
+    SET SALARIO = SALARIO + ((dato.SALARIO_MEDIO - SALARIO) * 0.5)
+    WHERE OFICIO = dato.OFICIO
+    AND SALARIO < dato.SALARIO_MEDIO;
+  END LOOP;
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Ajuste de salarios completado correctamente.');
+  
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Error al ajustar medias: ' || SQLERRM);
+END;
+/
+
+-- 8. PARTE A: Simular Liquidación (Solo pantalla)
+CREATE OR REPLACE PROCEDURE simular_finiquito IS
+  v_plus_antiguedad NUMBER;
+  v_plus_resp NUMBER;
+  v_comision_real NUMBER;
+  v_total_pagar NUMBER;
+  v_num_subordinados NUMBER;
+  
+  CURSOR cur_plantilla IS
+    SELECT * FROM EMPLE ORDER BY APELLIDO;
+BEGIN
+  FOR r IN cur_plantilla LOOP
+    -- 1. Trienios: cada 3 años, 50 euros
+    v_plus_antiguedad := TRUNC(MONTHS_BETWEEN(SYSDATE, r.FECHA_ALT) / 12 / 3) * 50;
+    
+    -- 2. Responsabilidad: 100 por cada subordinado
+    SELECT COUNT(*) INTO v_num_subordinados FROM EMPLE WHERE DIR = r.EMP_NO;
+    v_plus_resp := v_num_subordinados * 100;
+    
+    -- 3. Comisión (controlando nulos)
+    v_comision_real := NVL(r.COMISION, 0);
+    
+    -- Total
+    v_total_pagar := r.SALARIO + v_plus_antiguedad + v_plus_resp + v_comision_real;
+    
+    -- Salida
+    DBMS_OUTPUT.PUT_LINE('========================================');
+    DBMS_OUTPUT.PUT_LINE('Empleado: ' || r.APELLIDO);
+    DBMS_OUTPUT.PUT_LINE('  - Salario Base: ' || r.SALARIO);
+    DBMS_OUTPUT.PUT_LINE('  - Trienios:     ' || v_plus_antiguedad);
+    DBMS_OUTPUT.PUT_LINE('  - Responsab.:   ' || v_plus_resp);
+    DBMS_OUTPUT.PUT_LINE('  - Comisión:     ' || v_comision_real);
+    DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('  > TOTAL:        ' || v_total_pagar);
+  END LOOP;
+END;
+/
+
+-- 8. PARTE B: Guardar Liquidación en tabla
+-- Primero borramos y creamos la tabla auxiliar si hace falta
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE T_liquidacion';
+EXCEPTION
+  WHEN OTHERS THEN NULL; -- Ignorar error si no existe
+END;
+/
+
+CREATE TABLE T_liquidacion (
+  apellido VARCHAR2(50),
+  departamento NUMBER(2),
+  oficio VARCHAR2(20),
+  salario NUMBER,
+  trienios NUMBER,
+  comp_responsabilidad NUMBER,
+  comision NUMBER,
+  total NUMBER
+);
+
+CREATE OR REPLACE PROCEDURE guardar_datos_liquidacion IS
+  v_antiguedad NUMBER;
+  v_responsab NUMBER;
+  v_comis NUMBER;
+  v_final NUMBER;
+  v_gente_a_cargo NUMBER;
+  
+  CURSOR cur_todos IS SELECT * FROM EMPLE;
+BEGIN
+  FOR emp IN cur_todos LOOP
+    -- Cálculos idénticos al anterior
+    v_antiguedad := TRUNC(MONTHS_BETWEEN(SYSDATE, emp.FECHA_ALT) / 12 / 3) * 50;
+    
+    SELECT COUNT(*) INTO v_gente_a_cargo FROM EMPLE WHERE DIR = emp.EMP_NO;
+    v_responsab := v_gente_a_cargo * 100;
+    
+    v_comis := NVL(emp.COMISION, 0);
+    v_final := emp.SALARIO + v_antiguedad + v_responsab + v_comis;
+    
+    -- Insertamos en la tabla nueva
+    INSERT INTO T_liquidacion (apellido, departamento, oficio, salario, trienios, comp_responsabilidad, comision, total)
+    VALUES (emp.APELLIDO, emp.DEPT_NO, emp.OFICIO, emp.SALARIO, v_antiguedad, v_responsab, v_comis, v_final);
+  END LOOP;
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Tabla T_liquidacion rellenada correctamente.');
+EXCEPTION
+  WHEN OTHERS THEN
+    ROLLBACK;
+    DBMS_OUTPUT.PUT_LINE('Fallo al guardar datos: ' || SQLERRM);
+END;
+/
+
+-- 9. Procedimiento Complejo de Nuevo Pedido (Gestión Stock y Crédito)
+CREATE OR REPLACE PROCEDURE tramitar_pedido(
+  p_cod_pedido NUMBER,
+  p_cod_prod NUMBER,
+  p_cod_cli NUMBER,
+  p_cantidad NUMBER,
+  p_fecha DATE DEFAULT SYSDATE
+) IS
+  v_precio_unidad NUMBER;
+  v_stock_actual NUMBER;
+  v_limite_credito NUMBER;
+  v_deuda_actual NUMBER;
+  v_cod_vendedor NUMBER;
+  v_importe_total NUMBER;
+  
+  -- Excepciones personalizadas
+  e_sin_stock EXCEPTION;
+  e_tope_credito EXCEPTION;
+BEGIN
+  -- 1. Comprobamos producto y stock
+  SELECT PRECIO_ACTUAL, STOCK_DISPONIBLE INTO v_precio_unidad, v_stock_actual
+  FROM PRODUCTOS08 WHERE PRODUCTO_NO = p_cod_prod;
+  
+  IF v_stock_actual < p_cantidad THEN
+    RAISE e_sin_stock;
+  END IF;
+  
+  -- 2. Comprobamos cliente y crédito
+  SELECT LIMITE_CREDITO, DEBE, VENDEDOR_NO INTO v_limite_credito, v_deuda_actual, v_cod_vendedor
+  FROM CLIENTES08 WHERE CLIENTE_NO = p_cod_cli;
+  
+  v_importe_total := v_precio_unidad * p_cantidad;
+  
+  IF (v_deuda_actual + v_importe_total) > v_limite_credito THEN
+    RAISE e_tope_credito;
+  END IF;
+  
+  -- 3. Insertamos el pedido
+  INSERT INTO PEDIDOS08 (PEDIDO_NO, PRODUCTO_NO, CLIENTE_NO, UNIDADES, FECHA_PEDIDO)
+  VALUES (p_cod_pedido, p_cod_prod, p_cod_cli, p_cantidad, NVL(p_fecha, SYSDATE));
+  
+  -- 4. Actualizamos deuda cliente
+  UPDATE CLIENTES08 
+  SET DEBE = DEBE + v_importe_total
+  WHERE CLIENTE_NO = p_cod_cli;
+  
+  -- 5. Restamos stock
+  UPDATE PRODUCTOS08
+  SET STOCK_DISPONIBLE = STOCK_DISPONIBLE - p_cantidad
+  WHERE PRODUCTO_NO = p_cod_prod;
+  
+  -- 6. Damos comisión al vendedor (5%) si tiene vendedor asignado
+  IF v_cod_vendedor IS NOT NULL THEN
+    UPDATE EMPLE
+    SET COMISION = NVL(COMISION, 0) + (v_importe_total * 0.05)
+    WHERE EMP_NO = v_cod_vendedor;
+  END IF;
+  
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('Pedido ' || p_cod_pedido || ' procesado con éxito.');
+  
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Error: No existe el Producto o el Cliente indicado.');
+    ROLLBACK;
+  WHEN e_sin_stock THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Stock insuficiente para realizar el pedido.');
+    ROLLBACK;
+  WHEN e_tope_credito THEN
+    DBMS_OUTPUT.PUT_LINE('Error: El cliente superaría su límite de crédito.');
+    ROLLBACK;
+  WHEN DUP_VAL_ON_INDEX THEN
+    DBMS_OUTPUT.PUT_LINE('Error: Ya existe un pedido con ese número.');
+    ROLLBACK;
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error inesperado: ' || SQLERRM);
+    ROLLBACK;
+END;
+/
