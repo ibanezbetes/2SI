@@ -1,37 +1,58 @@
 /**
- * js/paginacion.js
- * Funcionalidad para gestionar la paginación en las vistas de listados.
+ * js/paginacion.js - Funciones de soporte para la paginación
+ * 
+ * Estas funciones complementan al componente VPaginacion.php.
+ * Se usan cuando la paginación se controla desde campos ocultos del formulario
+ * (patrón alternativo al callback directo que usa VPaginacion.php).
+ * 
+ * NOTA: El componente VPaginacion.php ya llama directamente a las funciones
+ * callback (buscarUsuarios, buscarProductos, buscarPedidos) con los parámetros
+ * de página y tamaño. Estas funciones son un mecanismo auxiliar.
  */
 
-// Función para cambiar de página
-// page: número de página al que se quiere ir
+/**
+ * Cambiar a una página concreta
+ * Actualiza el campo oculto 'pagina' y relanza la búsqueda.
+ * 
+ * @param {number} page - Número de página al que se quiere navegar
+ */
 function cambiarPagina(page) {
-    // Actualizar el campo oculto 'pagina' del formulario actual
+    // Actualizar el campo oculto del formulario con la página solicitada
     document.getElementById('pagina').value = page;
-    // Volver a lanzar la búsqueda para refrescar el listado
-    // Se asume que existe la función buscarUsuarios() o similar en el contexto
-    // Para hacerlo genérico, buscamos el botón de submit o llamamos a la función de búsqueda
-    
-    // Una forma genérica es disparar el evento click del botón de buscar principal
-    // O llamar a la función específica si sabemos cual es.
-    // Dado que 'buscarUsuarios' es específica, intentaremos ser lo más genéricos posible.
-    // En este proyecto, cada módulo tiene su función de búsqueda principal.
-    // Comprobamos si existe buscarUsuarios (para el módulo Usuarios)
+
+    // Llamar a la función de búsqueda del módulo activo
     if (typeof buscarUsuarios === 'function') {
         buscarUsuarios();
     }
-    // Aquí se podrían añadir más condiciones para otros módulos (ej: buscarProductos)
+    if (typeof buscarProductos === 'function') {
+        buscarProductos();
+    }
+    if (typeof buscarPedidos === 'function') {
+        buscarPedidos();
+    }
 }
 
-// Función para cambiar el tamaño de página (número de resultados por página)
-// size: nuevo tamaño de página
+/**
+ * Cambiar el número de resultados por página
+ * Actualiza el tamaño de página y vuelve a la página 1.
+ * 
+ * @param {number} size - Nuevo número de resultados por página
+ */
 function cambiarTamPag(size) {
-    // Actualizar el campo 'tam_pag'
+    // Actualizar el tamaño de página
     document.getElementById('tam_pag').value = size;
-    // Resetear a la primera página para evitar offsets inválidos
+
+    // Volver a la página 1 para evitar offsets fuera de rango
     document.getElementById('pagina').value = 1;
-    // Recargar listado
+
+    // Relanzar búsqueda
     if (typeof buscarUsuarios === 'function') {
         buscarUsuarios();
+    }
+    if (typeof buscarProductos === 'function') {
+        buscarProductos();
+    }
+    if (typeof buscarPedidos === 'function') {
+        buscarPedidos();
     }
 }

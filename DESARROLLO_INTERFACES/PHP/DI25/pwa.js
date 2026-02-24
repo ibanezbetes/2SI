@@ -1,18 +1,29 @@
+/**
+ * pwa.js - Registro del Service Worker para PWA
+ * 
+ * Este script se incluye en index.php y login.php.
+ * Comprueba si el navegador soporta Service Workers y, si no hay
+ * uno registrado, lo registra con el archivo pwa_sw.js.
+ * 
+ * Esto permite que la aplicación funcione offline mostrando
+ * una página de "Sin conexión" (offline.html) cuando no hay red.
+ */
+
 if ("serviceWorker" in navigator) {
-    console.log("Navegador admite Service worker.");
+    console.log("Navegador admite Service Worker.");
+
     if (navigator.serviceWorker.controller) {
-        console.log("El service worker ya existe, no se necesita registralo de nuevo");
+        // Ya hay un Service Worker activo, no hace falta registrar otro
+        console.log("El Service Worker ya existe, no se necesita registrarlo de nuevo.");
     } else {
-        // Registra el service worker y lo deja ejecutandose en segundo plano (otro hilo)
-        console.log("Registrar Service worker.");
-        // Ensure this points to the dot version
+        // Registrar el Service Worker en segundo plano (otro hilo)
+        console.log("Registrando Service Worker...");
         navigator.serviceWorker.register("pwa_sw.js", {
-                scope: "./"
+            scope: "./"   // Alcance: toda la aplicación desde la raíz
         }).then(function (reg) {
-            console.log("Service worker ha sido registrado para: " + reg.scope);
-        }).catch(function(err) {
-        // registration failed :(
-        console.log('NO se ha podido registrar el ServiceWorker: ', err);
+            console.log("Service Worker registrado para: " + reg.scope);
+        }).catch(function (err) {
+            console.log("NO se ha podido registrar el Service Worker: ", err);
         });
     }
 }

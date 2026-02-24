@@ -1,15 +1,47 @@
-// Busca productos aplicando los filtros del formulario
+/**
+ * js/productos.js - Lógica del módulo de Productos (lado cliente)
+ * 
+ * Gestiona las operaciones CRUD de productos desde el navegador:
+ * - Buscar y listar productos (con paginación)
+ * - Mostrar formulario de creación
+ * - Mostrar formulario de edición
+ * - Validar datos antes de enviar
+ * - Guardar/actualizar/eliminar productos via AJAX
+ * 
+ * Depende de: utils.js (buscar, mostrarError, mostrarExito, limpiarMensajes)
+ */
+
+// =====================================================================
+// BÚSQUEDA Y LISTADO
+// =====================================================================
+
+/**
+ * Buscar productos con filtros y paginación
+ * 
+ * @param {number} pagina - Número de página (por defecto 1)
+ * @param {number} tamPag - Registros por página (por defecto 5)
+ */
 function buscarProductos(pagina = 1, tamPag = 5) {
   const params = `pagina=${pagina}&tam_pag=${tamPag}`;
   buscar("Productos", "getVistaListadoProductos", "formularioBuscarProducto", "capaResultadosProductos", params);
 }
 
+/**
+ * Mostrar todos los productos (sin filtros)
+ */
 function verTodosProductos() {
   document.getElementById("formularioBuscarProducto").reset();
   buscar("Productos", "getVistaListadoProductos", "formularioBuscarProducto", "capaResultadosProductos");
 }
 
-// Muestra el formulario vacío para crear un nuevo producto
+// =====================================================================
+// FORMULARIOS (CREAR / EDITAR)
+// =====================================================================
+
+/**
+ * Mostrar formulario vacío para crear un nuevo producto
+ * Se muestra en el panel lateral derecho de la vista principal.
+ */
 function mostrarFormularioCrearProducto() {
   const formulario = `
     <div id="mensajesProducto"></div>
@@ -40,7 +72,11 @@ function mostrarFormularioCrearProducto() {
   document.getElementById("formularioProducto").style.display = "block";
 }
 
-// Obtiene datos del producto y muestra formulario para editar
+/**
+ * Cargar datos de un producto del servidor y mostrar el formulario de edición
+ * 
+ * @param {number} idProducto - ID del producto a editar
+ */
 function editarProducto(idProducto) {
   fetch(`CFrontal.php?controlador=Productos&metodo=obtenerProducto&idProducto=${idProducto}`)
     .then((response) => response.json())
@@ -49,6 +85,11 @@ function editarProducto(idProducto) {
     });
 }
 
+/**
+ * Generar y mostrar el formulario de edición con los datos del producto
+ * 
+ * @param {Object} producto - Datos del producto a editar
+ */
 function mostrarFormularioEditarProducto(producto) {
   const formulario = `
     <div id="mensajesProducto"></div>
@@ -80,18 +121,27 @@ function mostrarFormularioEditarProducto(producto) {
   document.getElementById("formularioProducto").style.display = "block";
 }
 
-// Valida y envía datos para crear un nuevo producto
+// =====================================================================
+// GUARDAR / ACTUALIZAR / ELIMINAR
+// =====================================================================
+
+/**
+ * Validar datos y enviar petición para CREAR un nuevo producto
+ */
 function guardarProducto() {
   limpiarMensajes("mensajesProducto");
 
+  // Recoger valores del formulario
   const producto = document.getElementById("productoNombre").value.trim();
-  const precio = document.getElementById("productoPrecio").value.trim();
+  const precio   = document.getElementById("productoPrecio").value.trim();
 
+  // Validar campos obligatorios
   if (!producto || !precio) {
     mostrarError("mensajesProducto", "El nombre y precio son obligatorios");
     return;
   }
 
+  // Enviar datos al servidor
   let parametros = "controlador=Productos&metodo=crearProducto";
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById("formProducto"))).toString();
 
@@ -110,20 +160,24 @@ function guardarProducto() {
     });
 }
 
-// Valida y envía datos para actualizar un producto existente
+/**
+ * Validar datos y enviar petición para ACTUALIZAR un producto existente
+ */
 function actualizarProducto() {
   limpiarMensajes("mensajesProducto");
 
+  // Preparar datos para el servidor
   const datos = {
     controlador: "Productos",
     metodo: "actualizarProducto",
-    idProducto: document.getElementById("idProducto").value,
-    producto: document.getElementById("productoNombre").value.trim(),
+    idProducto:  document.getElementById("idProducto").value,
+    producto:    document.getElementById("productoNombre").value.trim(),
     descripcion: document.getElementById("productoDescripcion").value.trim(),
-    stock: document.getElementById("productoStock").value,
+    stock:       document.getElementById("productoStock").value,
     precioVenta: document.getElementById("productoPrecio").value
   };
 
+  // Enviar por POST
   fetch("CFrontal.php", { method: "POST", body: new URLSearchParams(datos) })
     .then((response) => response.text())
     .then((data) => {
@@ -139,12 +193,20 @@ function actualizarProducto() {
     });
 }
 
+/**
+ * Cerrar el formulario de producto y limpiar su contenido
+ */
 function cancelarFormularioProducto() {
   document.getElementById("formularioProducto").style.display = "none";
   document.getElementById("formularioProducto").innerHTML = "";
 }
 
-// Elimina un producto tras confirmación
+/**
+ * Eliminar un producto (baja lógica) previa confirmación
+ * 
+ * @param {number} idProducto     - ID del producto a eliminar
+ * @param {string} nombreProducto - Nombre del producto (para el mensaje)
+ */
 function eliminarProducto(idProducto, nombreProducto) {
   if (confirm(`¿Eliminar '${nombreProducto}'?`)) {
     const datos = {

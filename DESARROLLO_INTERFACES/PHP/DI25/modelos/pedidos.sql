@@ -1,19 +1,14 @@
-CREATE TABLE IF NOT EXISTS pedidos (
-  idPedido INT AUTO_INCREMENT PRIMARY KEY,
-  idUsuario INT UNSIGNED NOT NULL,
-  fecha DATE NOT NULL,
-  total DECIMAL(10,2) DEFAULT 0,
-  estado CHAR(1) DEFAULT 'P', -- P: Pendiente, C: Completado
-  activo CHAR(1) DEFAULT 'S',
-  FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- ============================================================
+-- modelos/pedidos.sql (ARCHIVO OBSOLETO)
+-- Base de datos: db_di25
+--
+-- NOTA: Este archivo se mantiene solo como referencia histórica.
+-- Las definiciones actuales y correctas de las tablas de pedidos
+-- están en los siguientes archivos del directorio sql/:
+--
+--   sql/crear_pedidos.sql          - Crear tablas desde cero
+--   sql/crear_menus_y_pedidos.sql  - Crear tablas + menú dinámico
+--   sql/fix_pedidos.sql            - Reparar tablas existentes
+-- ============================================================
 
-CREATE TABLE IF NOT EXISTS pedidos_detalles (
-  idDetalle INT AUTO_INCREMENT PRIMARY KEY,
-  idPedido INT NOT NULL,
-  idProducto INT NOT NULL,
-  cantidad INT NOT NULL,
-  precioUnitario DECIMAL(10,2) NOT NULL,
-  FOREIGN KEY (idPedido) REFERENCES pedidos(idPedido),
-  FOREIGN KEY (idProducto) REFERENCES productos(idProducto)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- Por favor, usa los archivos del directorio sql/ en su lugar.

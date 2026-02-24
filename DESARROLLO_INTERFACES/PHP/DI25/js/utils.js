@@ -1,16 +1,47 @@
-// Validar formato de email (usuario@dominio.com)
+/**
+ * js/utils.js - Funciones de utilidad compartidas
+ * 
+ * Contiene funciones auxiliares que se usan en todos los módulos:
+ * - Validations de formularios (email, móvil)
+ * - Mensajes de éxito/error (alertas Bootstrap)
+ * - Carga dinámica de vistas por AJAX (obtenerVista)
+ * - Envío de formularios de búsqueda por AJAX (buscar)
+ */
+
+// =====================================================================
+// VALIDACIONES
+// =====================================================================
+
+/**
+ * Validar formato de email
+ * @param {string} email - Dirección de email a validar
+ * @returns {boolean} true si el formato es válido (usuario@dominio.ext)
+ */
 function validarEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
 
-// Validar móvil español (9 dígitos, empieza por 6, 7, 8 o 9)
+/**
+ * Validar formato de teléfono móvil español
+ * Debe tener 9 dígitos y empezar por 6, 7, 8 o 9
+ * @param {string} movil - Número de teléfono a validar
+ * @returns {boolean} true si el formato es válido
+ */
 function validarMovil(movil) {
   const regex = /^[6-9]\d{8}$/;
   return regex.test(movil.replace(/\s/g, ''));
 }
 
-// Mostrar mensaje de error en un contenedor
+// =====================================================================
+// MENSAJES (alertas Bootstrap)
+// =====================================================================
+
+/**
+ * Mostrar un mensaje de error en un contenedor HTML
+ * @param {string} contenedorId - ID del elemento HTML donde mostrar el error
+ * @param {string} mensaje - Texto del error a mostrar
+ */
 function mostrarError(contenedorId, mensaje) {
   const contenedor = document.getElementById(contenedorId);
   if (contenedor) {
@@ -23,7 +54,11 @@ function mostrarError(contenedorId, mensaje) {
   }
 }
 
-// Mostrar mensaje de éxito en un contenedor
+/**
+ * Mostrar un mensaje de éxito en un contenedor HTML
+ * @param {string} contenedorId - ID del elemento HTML donde mostrar el éxito
+ * @param {string} mensaje - Texto del mensaje de éxito
+ */
 function mostrarExito(contenedorId, mensaje) {
   const contenedor = document.getElementById(contenedorId);
   if (contenedor) {
@@ -36,7 +71,10 @@ function mostrarExito(contenedorId, mensaje) {
   }
 }
 
-// Limpiar mensajes de un contenedor
+/**
+ * Limpiar todos los mensajes de un contenedor
+ * @param {string} contenedorId - ID del elemento HTML a limpiar
+ */
 function limpiarMensajes(contenedorId) {
   const contenedor = document.getElementById(contenedorId);
   if (contenedor) {
@@ -44,43 +82,65 @@ function limpiarMensajes(contenedorId) {
   }
 }
 
-// Cargar una vista desde el servidor (AJAX)
-// Función genérica para cargar vistas mediante AJAX
-// controlador: nombre del controlador (ej: 'Usuarios')
-// metodo: nombre del método a llamar (ej: 'getVistaUsuariosPrincipal')
-// destino: ID del elemento HTML donde se pintará el resultado
-// parametrosExtra: parámetros adicionales para la URL
+// =====================================================================
+// CARGA DINÁMICA DE VISTAS (AJAX)
+// =====================================================================
+
+/**
+ * Cargar una vista del servidor y mostrarla en un contenedor HTML
+ * Esta función es la base del sistema de navegación SPA (Single Page Application).
+ * Se llama desde los menús de navegación onclick="obtenerVista(...)".
+ * 
+ * @param {string} controlador     - Nombre del controlador (ej: 'Usuarios', 'Productos', 'Pedidos')
+ * @param {string} metodo          - Nombre del método a ejecutar en el controlador
+ * @param {string} destino         - ID del elemento HTML donde se pintará la respuesta
+ * @param {string} parametrosExtra - Parámetros adicionales para la URL (opcional)
+ * 
+ * Ejemplo de uso (desde el menú):
+ *   obtenerVista('Usuarios', 'getVistaUsuariosPrincipal', 'capaContenido');
+ */
 function obtenerVista(controlador, metodo, destino, parametrosExtra = "") {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
   if (parametrosExtra) {
     parametros += "&" + parametrosExtra;
   }
 
-  // Hacer petición al servidor sin recargar la página
+  // Petición AJAX al Controlador Frontal
   fetch("CFrontal.php?" + parametros)
     .then((res) => res.text())
     .then((respuesta) => {
-      // Insertar la respuesta en el contenedor
+      // Insertar la vista devuelta en el contenedor destino
       document.getElementById(destino).innerHTML = respuesta;
     })
     .catch(() => {
-      document.getElementById(destino).innerHTML = "Error al cargar";
+      document.getElementById(destino).innerHTML = "Error al cargar la vista";
     });
 }
 
-// Buscar datos enviando un formulario (AJAX)
-// Función para enviar formularios de búsqueda por AJAX
-// Recoge todos los campos del formulario y los envía al servidor
-// Pinta la respuesta en el contenedor 'destino'
+/**
+ * Enviar un formulario de búsqueda al servidor por AJAX
+ * Recoge automáticamente todos los campos del formulario y los envía.
+ * La respuesta (que suele ser una tabla HTML) se muestra en el contenedor destino.
+ * 
+ * @param {string} controlador     - Nombre del controlador
+ * @param {string} metodo          - Nombre del método de búsqueda
+ * @param {string} formulario      - ID del formulario cuyos datos se enviarán
+ * @param {string} destino         - ID del contenedor donde mostrar los resultados
+ * @param {string} parametrosExtra - Parámetros adicionales (ej: 'pagina=2&tam_pag=10')
+ * 
+ * Ejemplo de uso:
+ *   buscar('Usuarios', 'getVistaListadoUsuarios', 'formularioBuscar', 'capaResultados');
+ */
 function buscar(controlador, metodo, formulario, destino, parametrosExtra = "") {
   let parametros = "controlador=" + controlador + "&metodo=" + metodo;
-  if(parametrosExtra){
-      parametros += "&" + parametrosExtra;
+  if (parametrosExtra) {
+    parametros += "&" + parametrosExtra;
   }
 
-  // Obtener los datos del formulario y convertirlos a URL params
+  // Serializar los datos del formulario y añadirlos a los parámetros
   parametros += "&" + new URLSearchParams(new FormData(document.getElementById(formulario))).toString();
 
+  // Petición AJAX
   fetch("CFrontal.php?" + parametros)
     .then((res) => res.text())
     .then((vista) => {
