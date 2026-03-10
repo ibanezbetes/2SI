@@ -15,9 +15,6 @@
      ============================================================ -->
 
 <div class="container-fluid">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-
         <!-- Formulario de búsqueda de usuarios -->
         <form id="formularioBuscar">
             <div class="row">
@@ -63,7 +60,4 @@
                 </div>
             </div>
         </div>
-
-    </div>
-  </div>
 </div>

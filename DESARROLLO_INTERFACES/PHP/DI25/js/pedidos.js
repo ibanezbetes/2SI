@@ -165,15 +165,15 @@ function renderFormularioPedido(pedido = null) {
                 <!-- Cabecera del pedido: usuario y fecha -->
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Usuario *</label>
+                        <label class="form-label text-white">Usuario *</label>
                         <select class="form-control" id="pedidoUsuario" required>${optsUsuarios}</select>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Fecha *</label>
+                        <label class="form-label text-white">Fecha *</label>
                         <input type="date" class="form-control" id="pedidoFecha" value="${esEdicion ? pedido.fecha : new Date().toISOString().split('T')[0]}" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Estado</label>
+                        <label class="form-label text-white">Estado</label>
                         <select class="form-control" id="pedidoEstado">
                             <option value="P" ${(!esEdicion || pedido.estado === 'P') ? 'selected' : ''}>Pendiente</option>
                             <option value="C" ${(esEdicion && pedido.estado === 'C') ? 'selected' : ''}>Completado</option>
@@ -182,8 +182,8 @@ function renderFormularioPedido(pedido = null) {
                 </div>
 
                 <!-- Sección para añadir líneas de detalle -->
-                <div class="card mb-3">
-                    <div class="card-header"><strong>Añadir Producto</strong></div>
+                <div class="card mb-3 bg-dark border-secondary">
+                    <div class="card-header text-white border-secondary"><strong>Añadir Producto</strong></div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-5">
@@ -196,7 +196,7 @@ function renderFormularioPedido(pedido = null) {
                                 <input type="number" class="form-control" id="lineaCantidad" placeholder="Cant." min="1" value="1">
                             </div>
                             <div class="col-md-3">
-                                <input type="number" step="0.01" class="form-control" id="lineaPrecio" placeholder="Precio">
+                                <input type="number" step="0.01" class="form-control" id="lineaPrecio" placeholder="Precio" readonly>
                             </div>
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-success w-100" onclick="addLinea();">➕ Añadir</button>
@@ -207,14 +207,14 @@ function renderFormularioPedido(pedido = null) {
 
                 <!-- Tabla con las líneas de detalle actuales -->
                 <div class="table-responsive mb-3">
-                    <table class="table table-sm table-striped" id="tablaLineas">
-                        <thead><tr>
-                            <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th>
+                    <table class="table table-sm table-striped text-white" id="tablaLineas">
+                        <thead><tr class="text-white">
+                            <th class="text-white">Producto</th><th class="text-white">Cantidad</th><th class="text-white">Precio</th><th class="text-white">Subtotal</th><th></th>
                         </tr></thead>
-                        <tbody>${lineasHTML}</tbody>
-                        <tfoot>
-                            <tr><td colspan="3" class="text-end"><strong>Total:</strong></td>
-                            <td colspan="2"><strong>${total.toFixed(2)} €</strong></td></tr>
+                        <tbody class="text-white">${lineasHTML}</tbody>
+                        <tfoot class="text-white">
+                            <tr><td colspan="3" class="text-end text-white"><strong>Total:</strong></td>
+                            <td colspan="2" class="text-white"><strong>${total.toFixed(2)} €</strong></td></tr>
                         </tfoot>
                     </table>
                 </div>
