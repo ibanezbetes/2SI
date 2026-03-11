@@ -1,57 +1,13 @@
 /**
- * js/pedidos.js - Lógica del módulo de Pedidos (lado cliente)
- * 
- * Gestiona las operaciones CRUD de pedidos (maestro-detalle) desde el navegador:
- * - Buscar y listar pedidos (con paginación)
- * - Crear nuevos pedidos con líneas de detalle (modal)
- * - Editar pedidos existentes (cargando sus líneas actuales)
- * - Eliminar pedidos previa confirmación
- * 
- * El formulario permite:
- * - Seleccionar usuario y fecha
- * - Añadir/quitar líneas de detalle (producto, cantidad, precio)
- * - Ver el total del pedido actualizado en tiempo real
- * 
- * Depende de: utils.js (buscar, mostrarError, mostrarExito)
+ * js/pedidos.js - Lógica del módulo de Pedidos (Maestro-Detalle)
  */
 
-// =====================================================================
-// VARIABLES GLOBALES
-// =====================================================================
-
-/** @type {Array} Líneas de detalle del pedido en edición/creación */
 let lineasPedido = [];
-
-/** @type {Array} Lista de usuarios activos (precargada del servidor) */
-let listaUsuarios = [];
-
-/** @type {Array} Lista de productos activos (precargada del servidor) */
 let listaProductos = [];
 
-// =====================================================================
-// CARGA DE DATOS AUXILIARES
-// =====================================================================
-
-/**
- * Cargar listas de usuarios y productos del servidor
- * Se llama antes de mostrar el formulario para poblar los selects.
- * Los datos se cachean en las variables globales para no repetir peticiones.
- * 
- * @returns {Promise} Promesa que se resuelve cuando ambas listas están cargadas
- */
 function cargarDatosAuxiliares() {
     const promesas = [];
 
-    // Cargar usuarios solo si no están ya cargados
-    if (listaUsuarios.length === 0) {
-        promesas.push(
-            fetch('CFrontal.php?controlador=Pedidos&metodo=getUsuariosJSON')
-                .then(r => r.json())
-                .then(data => { listaUsuarios = data; })
-        );
-    }
-
-    // Cargar productos solo si no están ya cargados
     if (listaProductos.length === 0) {
         promesas.push(
             fetch('CFrontal.php?controlador=Pedidos&metodo=getProductosJSON')
@@ -59,16 +15,9 @@ function cargarDatosAuxiliares() {
                 .then(data => { listaProductos = data; })
         );
     }
-
     return Promise.all(promesas);
 }
 
-/**
- * Generar las opciones HTML del select de productos
- * Incluye data-precio para que al seleccionar se autocomplete el precio.
- * 
- * @returns {string} HTML con las opciones del select
- */
 function generarOpcionesProductos() {
     let optsProductos = '<option value="">Seleccionar Producto...</option>';
     listaProductos.forEach(p => {
@@ -77,62 +26,29 @@ function generarOpcionesProductos() {
     return optsProductos;
 }
 
-// =====================================================================
-// BÚSQUEDA Y LISTADO
-// =====================================================================
-
-/**
- * Buscar pedidos con filtros y paginación
- * 
- * @param {number} pagina - Número de página (por defecto 1)
- * @param {number} tamPag - Registros por página (por defecto 5)
- */
 function buscarPedidos(pagina = 1, tamPag = 5) {
     const params = `pagina=${pagina}&tam_pag=${tamPag}`;
     buscar("Pedidos", "getVistaListadoPedidos", "formularioBuscarPedido", "capaResultadosPedidos", params);
 }
 
-/**
- * Mostrar todos los pedidos (sin filtros)
- */
 function verTodosPedidos() {
     document.getElementById("formularioBuscarPedido").reset();
     buscar("Pedidos", "getVistaListadoPedidos", "formularioBuscarPedido", "capaResultadosPedidos");
 }
 
-// =====================================================================
-// FORMULARIO DE PEDIDO (CREAR / EDITAR)
-// =====================================================================
-
-/**
- * Preparar y mostrar el formulario para CREAR un nuevo pedido
- * Precarga los datos auxiliares (usuarios, productos) y luego renderiza.
- */
 function mostrarFormularioPedido() {
-    lineasPedido = [];  // Empezar sin líneas
+    lineasPedido = [];
     cargarDatosAuxiliares().then(() => {
         renderFormularioPedido();
     });
 }
 
-/**
- * Renderizar el formulario de pedido (creación o edición)
- * Si recibe datos de un pedido existente, los usa para rellenar los campos.
- * 
- * @param {Object|null} pedido - Datos del pedido (null = creación nueva)
- */
 function renderFormularioPedido(pedido = null) {
     const esEdicion = pedido !== null;
     const titulo = esEdicion ? 'Editar Pedido #' + pedido.idPedido : 'Nuevo Pedido';
 
-    // Generar opciones del select de usuarios
-    let optsUsuarios = '<option value="">Seleccionar Usuario...</option>';
-    listaUsuarios.forEach(u => {
-        const selected = (esEdicion && pedido.idUsuario == u.idUsuario) ? 'selected' : '';
-        optsUsuarios += `<option value="${u.idUsuario}" ${selected}>${u.nombre} ${u.apellido1}</option>`;
-    });
+    const usuarioNombreInicial = esEdicion ? `${pedido.u_nombre} ${pedido.u_apellido1}` : '';
 
-    // Generar la tabla de líneas de detalle existentes
     let lineasHTML = '';
     let total = 0;
     lineasPedido.forEach((linea, index) => {
@@ -149,39 +65,71 @@ function renderFormularioPedido(pedido = null) {
         `;
     });
 
-    // Construir el HTML completo del formulario
     const formulario = `
-        <!-- Overlay oscuro de fondo -->
         <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040;"></div>
         
-        <!-- Modal del formulario de pedido -->
-        <div class="p-4 rounded shadow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60%; min-width: 500px; max-height: 90vh; overflow-y: auto; z-index: 1050; background-color: var(--surface-color); color: var(--bs-body-color); border: 1px solid var(--bs-border-color);">
+        <div class="p-4 rounded shadow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; min-width: 600px; max-height: 90vh; overflow-y: auto; z-index: 1050; background-color: var(--surface-color); color: var(--bs-body-color); border: 1px solid var(--bs-border-color);">
             <h4 class="mb-4" style="color: var(--bs-light) !important;">${titulo}</h4>
             <div id="mensajesPedido"></div>
             
             <form id="formPedido">
                 ${esEdicion ? `<input type="hidden" id="idPedidoEdit" value="${pedido.idPedido}">` : ''}
                 
-                <!-- Cabecera del pedido: usuario y fecha -->
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4 position-relative">
                         <label class="form-label text-white">Usuario *</label>
-                        <select class="form-control" id="pedidoUsuario" required>${optsUsuarios}</select>
+                        <input type="text" class="form-control" id="pedidoUsuarioNombre" placeholder="Buscar usuario..." autocomplete="off" value="${usuarioNombreInicial}" required>
+                        <input type="hidden" id="pedidoUsuario" value="${esEdicion ? pedido.idUsuario : ''}">
+                        <div id="sugerenciasUsuarios" class="list-group position-absolute w-100" style="z-index: 1051; max-height: 200px; overflow-y: auto; display: none;"></div>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-white">Fecha *</label>
-                        <input type="date" class="form-control" id="pedidoFecha" value="${esEdicion ? pedido.fecha : new Date().toISOString().split('T')[0]}" required>
+                    <div class="col-md-4">
+                        <label class="form-label text-white">Fecha Pedido *</label>
+                        <input type="datetime-local" class="form-control" id="pedidoFechaPedido" value="${esEdicion ? formatDateTime(pedido.fechaPedido) : formatDateTime(new Date())}" required>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label text-white">Estado</label>
-                        <select class="form-control" id="pedidoEstado">
-                            <option value="P" ${(!esEdicion || pedido.estado === 'P') ? 'selected' : ''}>Pendiente</option>
-                            <option value="C" ${(esEdicion && pedido.estado === 'C') ? 'selected' : ''}>Completado</option>
-                        </select>
+                    <div class="col-md-4">
+                        <label class="form-label text-white">Fecha Almacén</label>
+                        <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="pedidoFechaAlmacen" value="${esEdicion && pedido.fechaAlmacen != '0000-00-00 00:00:00' ? formatDateTime(pedido.fechaAlmacen) : ''}">
+                            <button class="btn btn-outline-secondary bg-dark border-secondary" type="button" onclick="document.getElementById('pedidoFechaAlmacen').value=''" title="Borrar fecha">❌</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Sección para añadir líneas de detalle -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-white">Fecha Envío</label>
+                        <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="pedidoFechaEnvio" value="${esEdicion && pedido.fechaEnvio != '0000-00-00 00:00:00' ? formatDateTime(pedido.fechaEnvio) : ''}">
+                            <button class="btn btn-outline-secondary bg-dark border-secondary" type="button" onclick="document.getElementById('pedidoFechaEnvio').value=''" title="Borrar fecha">❌</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-white">Fecha Recibido</label>
+                        <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="pedidoFechaRecibido" value="${esEdicion && pedido.fechaRecibido != '0000-00-00 00:00:00' ? formatDateTime(pedido.fechaRecibido) : ''}">
+                            <button class="btn btn-outline-secondary bg-dark border-secondary" type="button" onclick="document.getElementById('pedidoFechaRecibido').value=''" title="Borrar fecha">❌</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-white">Fecha Finalizado</label>
+                        <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="pedidoFechaFinalizado" value="${esEdicion && pedido.fechaFinalizado != '0000-00-00 00:00:00' ? formatDateTime(pedido.fechaFinalizado) : ''}">
+                            <button class="btn btn-outline-secondary bg-dark border-secondary" type="button" onclick="document.getElementById('pedidoFechaFinalizado').value=''" title="Borrar fecha">❌</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-white">Transporte</label>
+                        <input type="text" class="form-control" id="pedidoTransporte" value="${esEdicion ? (pedido.transporte || '') : ''}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-white">Dirección</label>
+                        <input type="text" class="form-control" id="pedidoDireccion" value="${esEdicion ? (pedido.direccion || '') : ''}">
+                    </div>
+                </div>
+
                 <div class="card mb-3 bg-dark border-secondary">
                     <div class="card-header text-white border-secondary"><strong>Añadir Producto</strong></div>
                     <div class="card-body">
@@ -205,7 +153,6 @@ function renderFormularioPedido(pedido = null) {
                     </div>
                 </div>
 
-                <!-- Tabla con las líneas de detalle actuales -->
                 <div class="table-responsive mb-3">
                     <table class="table table-sm table-striped text-white" id="tablaLineas">
                         <thead><tr class="text-white">
@@ -219,7 +166,6 @@ function renderFormularioPedido(pedido = null) {
                     </table>
                 </div>
 
-                <!-- Botones de acción -->
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
                     <button type="button" class="btn btn-primary" onclick="guardarPedido();">
                         ${esEdicion ? '✏️ Actualizar' : '💾 Guardar'}
@@ -232,16 +178,87 @@ function renderFormularioPedido(pedido = null) {
 
     document.getElementById("capaPedidoFormulario").innerHTML = formulario;
     document.getElementById("capaPedidoFormulario").style.display = "block";
+    
+    inicializarAutocompleteUsuario();
 }
 
-// =====================================================================
-// GESTIÓN DE LÍNEAS DE DETALLE
-// =====================================================================
+function formatDateTime(dateInput) {
+    if (!dateInput) return "";
+    let d = new Date(dateInput);
+    if (isNaN(d.getTime())) return "";
+    let month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear(),
+        hours = '' + d.getHours(),
+        minutes = '' + d.getMinutes();
 
-/**
- * Añadir una nueva línea de detalle al pedido
- * Recoge los datos de los inputs (producto, cantidad, precio) y los añade al array.
- */
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+    if (hours.length < 2) hours = '0' + hours;
+    if (minutes.length < 2) minutes = '0' + minutes;
+
+    return [year, month, day].join('-') + 'T' + [hours, minutes].join(':');
+}
+
+function unformatDateTime(datetimeLocal) {
+    if (!datetimeLocal) return "";
+    return datetimeLocal.replace('T', ' ') + ':00';
+}
+
+function inicializarAutocompleteUsuario() {
+    const inputNombre = document.getElementById('pedidoUsuarioNombre');
+    const inputOculto = document.getElementById('pedidoUsuario');
+    const capaSugerencias = document.getElementById('sugerenciasUsuarios');
+    
+    if (!inputNombre) return;
+
+    let timeoutSugerencias;
+    
+    inputNombre.addEventListener('input', function() {
+        const filtro = this.value.trim();
+        inputOculto.value = ""; 
+        
+        clearTimeout(timeoutSugerencias);
+        
+        if (filtro.length < 2) {
+            capaSugerencias.style.display = 'none';
+            return;
+        }
+        
+        timeoutSugerencias = setTimeout(() => {
+            fetch(`CFrontal.php?controlador=Pedidos&metodo=buscarUsuariosJSON&filtro=${encodeURIComponent(filtro)}`)
+            .then(r => r.json())
+            .then(usuarios => {
+                capaSugerencias.innerHTML = '';
+                if (usuarios.length > 0) {
+                    usuarios.forEach(u => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'list-group-item list-group-item-action bg-dark text-white border-secondary text-start';
+                        btn.textContent = `${u.nombre} ${u.apellido1}`;
+                        btn.onclick = () => {
+                            inputNombre.value = `${u.nombre} ${u.apellido1}`;
+                            inputOculto.value = u.idUsuario;
+                            capaSugerencias.style.display = 'none';
+                        };
+                        capaSugerencias.appendChild(btn);
+                    });
+                    capaSugerencias.style.display = 'block';
+                } else {
+                    capaSugerencias.innerHTML = '<div class="list-group-item bg-dark text-muted border-secondary text-start">No hay coincidencias</div>';
+                    capaSugerencias.style.display = 'block';
+                }
+            });
+        }, 300);
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (e.target !== inputNombre && e.target.parentElement !== capaSugerencias) {
+            capaSugerencias.style.display = 'none';
+        }
+    });
+}
+
 function addLinea() {
     const select = document.getElementById('lineaProducto');
     const idProducto = select.value;
@@ -249,13 +266,11 @@ function addLinea() {
     const cantidad = parseInt(document.getElementById('lineaCantidad').value);
     const precio = parseFloat(document.getElementById('lineaPrecio').value);
 
-    // Validar que todos los campos estén completos
     if (!idProducto || !cantidad || !precio) {
         alert("Complete todos los campos de la línea");
         return;
     }
 
-    // Añadir la línea al array
     lineasPedido.push({
         idProducto: idProducto,
         producto: producto,
@@ -263,86 +278,71 @@ function addLinea() {
         precioUnitario: precio
     });
 
-    // Refrescar el formulario para que se vea la nueva línea en la tabla
-    const pedidoActual = document.getElementById('idPedidoEdit');
-    if (pedidoActual) {
-        // Si estamos editando, re-renderizar con los datos del pedido
-        renderFormularioPedido({
-            idPedido: pedidoActual.value,
-            idUsuario: document.getElementById('pedidoUsuario').value,
-            fecha: document.getElementById('pedidoFecha').value,
-            estado: document.getElementById('pedidoEstado').value
-        });
-    } else {
-        // Si estamos creando, re-renderizar vacío (manteniendo las líneas en el array)
-        renderFormularioPedido();
-    }
+    actualizarRenderActual();
 }
 
-/**
- * Eliminar una línea de detalle del pedido por su índice
- * 
- * @param {number} index - Índice de la línea a eliminar en el array lineasPedido
- */
 function removeLinea(index) {
     lineasPedido.splice(index, 1);
-
-    // Refrescar el formulario
-    const pedidoActual = document.getElementById('idPedidoEdit');
-    if (pedidoActual) {
-        renderFormularioPedido({
-            idPedido: pedidoActual.value,
-            idUsuario: document.getElementById('pedidoUsuario').value,
-            fecha: document.getElementById('pedidoFecha').value,
-            estado: document.getElementById('pedidoEstado').value
-        });
-    } else {
-        renderFormularioPedido();
-    }
+    actualizarRenderActual();
 }
 
-// =====================================================================
-// GUARDAR / ACTUALIZAR / ELIMINAR
-// =====================================================================
+function actualizarRenderActual() {
+    const pedidoActual = document.getElementById('idPedidoEdit');
+    const mockPedido = {
+        idPedido: pedidoActual ? pedidoActual.value : null,
+        idUsuario: document.getElementById('pedidoUsuario').value,
+        u_nombre: document.getElementById('pedidoUsuarioNombre').value.split(' ')[0] || '',
+        u_apellido1: document.getElementById('pedidoUsuarioNombre').value.split(' ').slice(1).join(' ') || '',
+        fechaPedido: unformatDateTime(document.getElementById('pedidoFechaPedido').value),
+        fechaAlmacen: unformatDateTime(document.getElementById('pedidoFechaAlmacen').value),
+        fechaEnvio: unformatDateTime(document.getElementById('pedidoFechaEnvio').value),
+        fechaRecibido: unformatDateTime(document.getElementById('pedidoFechaRecibido').value),
+        fechaFinalizado: unformatDateTime(document.getElementById('pedidoFechaFinalizado').value),
+        transporte: document.getElementById('pedidoTransporte').value,
+        direccion: document.getElementById('pedidoDireccion').value
+    };
+    renderFormularioPedido(mockPedido);
+}
 
-/**
- * Validar datos del formulario y enviar petición para crear o actualizar un pedido
- * Detecta automáticamente si es creación o edición según si existe idPedidoEdit.
- */
 function guardarPedido() {
     const idUsuario = document.getElementById('pedidoUsuario').value;
-    const fecha = document.getElementById('pedidoFecha').value;
-    const estado = document.getElementById('pedidoEstado').value;
+    const fechaPedido = document.getElementById('pedidoFechaPedido').value;
+    const fechaAlmacen = document.getElementById('pedidoFechaAlmacen').value;
+    const fechaEnvio = document.getElementById('pedidoFechaEnvio').value;
+    const fechaRecibido = document.getElementById('pedidoFechaRecibido').value;
+    const fechaFinalizado = document.getElementById('pedidoFechaFinalizado').value;
+    const transporte = document.getElementById('pedidoTransporte').value;
+    const direccion = document.getElementById('pedidoDireccion').value;
     const idPedidoEdit = document.getElementById('idPedidoEdit');
 
-    // Validar campos obligatorios
-    if (!idUsuario || !fecha) {
-        alert("Seleccione un usuario y una fecha");
+    if (!idUsuario || !fechaPedido) {
+        alert("Seleccione un usuario y una fecha de pedido");
         return;
     }
 
-    // Validar que haya al menos una línea de detalle
     if (lineasPedido.length === 0) {
         alert("Debe añadir al menos un producto al pedido");
         return;
     }
 
-    // Preparar datos para enviar al servidor
     const datos = new URLSearchParams({
         controlador: 'Pedidos',
         metodo: idPedidoEdit ? 'actualizarPedido' : 'crearPedido',
         idUsuario: idUsuario,
-        fecha: fecha,
-        estado: estado,
-        detalles: JSON.stringify(lineasPedido)  // Líneas como JSON
+        fechaPedido: unformatDateTime(fechaPedido),
+        fechaAlmacen: unformatDateTime(fechaAlmacen),
+        fechaEnvio: unformatDateTime(fechaEnvio),
+        fechaRecibido: unformatDateTime(fechaRecibido),
+        fechaFinalizado: unformatDateTime(fechaFinalizado),
+        transporte: transporte,
+        direccion: direccion,
+        detalles: JSON.stringify(lineasPedido)
     });
 
-    // Si es edición, añadir el ID del pedido
     if (idPedidoEdit) {
         datos.append('idPedido', idPedidoEdit.value);
     }
 
-    // Enviar al servidor por POST
     fetch("CFrontal.php", {
         method: "POST",
         body: datos
@@ -359,12 +359,6 @@ function guardarPedido() {
     });
 }
 
-/**
- * Cargar datos de un pedido existente y mostrar el formulario de edición
- * Obtiene la cabecera y las líneas del servidor.
- * 
- * @param {number} idPedido - ID del pedido a editar
- */
 function editarPedido(idPedido) {
     cargarDatosAuxiliares().then(() => {
         fetch(`CFrontal.php?controlador=Pedidos&metodo=obtenerPedido&idPedido=${idPedido}`)
@@ -373,25 +367,110 @@ function editarPedido(idPedido) {
             if (pedido.error) {
                 alert(pedido.error);
             } else {
-                // Cargar las líneas del pedido en el array global
                 lineasPedido = pedido.detalles.map(d => ({
                     idProducto: d.idProducto,
                     producto: d.producto,
                     cantidad: parseInt(d.cantidad),
                     precioUnitario: parseFloat(d.precioUnitario)
                 }));
-                // Mostrar el formulario con los datos del pedido
                 renderFormularioPedido(pedido);
             }
         });
     });
 }
 
-/**
- * Eliminar un pedido (baja lógica) previa confirmación
- * 
- * @param {number} idPedido - ID del pedido a eliminar
- */
+function verDetallesPedido(idPedido) {
+    fetch(`CFrontal.php?controlador=Pedidos&metodo=obtenerPedido&idPedido=${idPedido}`)
+    .then(r => r.json())
+    .then(pedido => {
+        if (pedido.error) {
+            alert(pedido.error);
+        } else {
+            renderModalDetallesPedido(pedido);
+        }
+    });
+}
+
+function renderModalDetallesPedido(pedido) {
+    let lineasHTML = '';
+    let total = 0;
+    
+    pedido.detalles.forEach(linea => {
+        const subtotal = linea.cantidad * linea.precioUnitario;
+        total += subtotal;
+        lineasHTML += `
+            <tr>
+                <td>${linea.producto || 'Producto #' + linea.idProducto}</td>
+                <td>${linea.cantidad}</td>
+                <td>${parseFloat(linea.precioUnitario).toFixed(2)} €</td>
+                <td>${subtotal.toFixed(2)} €</td>
+            </tr>
+        `;
+    });
+
+    const estadoTexto = pedido.estado === 'C' ? 'Completado' : 'Pendiente';
+    const badgeEstado = pedido.estado === 'C' ? '<span class="badge bg-success">Completado</span>' : '<span class="badge bg-warning text-dark">Pendiente</span>';
+
+    const formulario = `
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1040;" onclick="cancelarFormularioPedido();"></div>
+        
+        <div class="p-4 rounded shadow" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; min-width: 600px; max-height: 90vh; overflow-y: auto; z-index: 1050; background-color: var(--surface-color); color: var(--bs-body-color); border: 1px solid var(--bs-border-color);">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-3">
+                <h4 class="m-0" style="color: var(--bs-light) !important;">
+                    🏷️ Detalles del Pedido #${pedido.idPedido}
+                </h4>
+                <button type="button" class="btn-close btn-close-white" onclick="cancelarFormularioPedido();"></button>
+            </div>
+            
+            <div class="row mb-4 bg-dark p-3 rounded border border-secondary">
+                <div class="col-md-6 mb-2">
+                    <p class="text-white mb-2"><strong class="text-info">👤 Cliente:</strong><br> ${pedido.u_nombre} ${pedido.u_apellido1}</p>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <p class="text-white mb-2"><strong class="text-info">📅 Fecha:</strong><br> ${pedido.fechaPedido}</p>
+                </div>
+                <div class="col-md-3 mb-2">
+                    <p class="text-white mb-2"><strong class="text-info">📋 Estado:</strong><br> ${badgeEstado}</p>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <p class="text-white mb-2"><strong class="text-info">🏠 Dirección:</strong><br> ${pedido.direccion || '-'}</p>
+                </div>
+                <div class="col-md-6 mt-2">
+                    <p class="text-white mb-2"><strong class="text-info">🚚 Transporte:</strong><br> ${pedido.transporte || '-'}</p>
+                </div>
+            </div>
+
+            <h5 class="text-white mb-3">📄 Productos Incluidos</h5>
+            <div class="table-responsive mb-3 border border-secondary rounded overflow-hidden">
+                <table class="table table-sm table-dark table-striped text-white m-0">
+                    <thead><tr>
+                        <th class="ps-3 py-2">Producto</th><th class="py-2">Cantidad</th><th class="py-2">Precio U.</th><th class="text-end pe-3 py-2">Subtotal</th>
+                    </tr></thead>
+                    <tbody>${lineasHTML}</tbody>
+                    <tfoot class="border-top border-secondary bg-dark text-white">
+                        <tr>
+                            <td colspan="3" class="text-end py-3"><strong>Total del Pedido:</strong></td>
+                            <td class="text-end pe-3 py-3"><strong class="text-success fs-5">${total.toFixed(2)} €</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top border-secondary">
+                <button type="button" class="btn btn-primary" onclick="editarPedido(${pedido.idPedido});">
+                    ✏️ Editar Pedido
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="cancelarFormularioPedido();">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById("capaPedidoFormulario").innerHTML = formulario;
+    document.getElementById("capaPedidoFormulario").style.display = "block";
+}
+
 function eliminarPedido(idPedido) {
     if (!confirm('¿Está seguro de eliminar este pedido?')) return;
 
@@ -414,11 +493,8 @@ function eliminarPedido(idPedido) {
     });
 }
 
-/**
- * Cerrar el formulario modal de pedido y limpiar datos
- */
 function cancelarFormularioPedido() {
     document.getElementById("capaPedidoFormulario").innerHTML = "";
     document.getElementById("capaPedidoFormulario").style.display = "none";
-    lineasPedido = [];  // Limpiar las líneas en memoria
+    lineasPedido = [];
 }
